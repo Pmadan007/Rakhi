@@ -1,21 +1,26 @@
+const inviteBtn = document.getElementById('invite-btn');
+const linkBox = document.getElementById('link-box');
+const inviteLink = document.getElementById('invite-link');
+const copyBtn = document.getElementById('copy-btn');
+
 const links = [
-  "https://rakhi-app.com/room/alpha12",
-  "https://rakhi-app.com/room/bliss99",
-  "https://rakhi-app.com/room/bond22"
+  'https://rakhi.app/join/123ABC',
+  'https://rakhi.app/join/456DEF',
+  'https://rakhi.app/join/789GHI'
 ];
 
-document.getElementById("generate-link-btn").addEventListener("click", () => {
+inviteBtn.addEventListener('click', () => {
   const randomLink = links[Math.floor(Math.random() * links.length)];
-  const roomLink = document.getElementById("room-link");
-
-  roomLink.value = randomLink;
-  document.getElementById("link-container").classList.remove("hidden");
+  inviteLink.value = randomLink;
+  inviteBtn.style.display = 'none';
+  linkBox.style.display = 'flex';
 });
 
-document.getElementById("copy-btn").addEventListener("click", () => {
-  const roomLink = document.getElementById("room-link");
-  roomLink.select();
-  roomLink.setSelectionRange(0, 99999);
-  navigator.clipboard.writeText(roomLink.value);
-  alert("Link copied to clipboard!");
+copyBtn.addEventListener('click', () => {
+  inviteLink.select();
+  document.execCommand('copy');
+  copyBtn.innerText = 'Copied!';
+  setTimeout(() => {
+    copyBtn.innerText = 'Copy';
+  }, 1500);
 });
