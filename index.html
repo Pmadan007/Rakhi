@@ -7,16 +7,32 @@
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <div class="container">
-    <img src="logo.png" alt="Brand Logo" class="brand-logo" />
-    <h1>Celebrate Rakhi with <span id="brand">Zepto</span></h1>
 
-    <button id="invite-btn">Invite Your Sibling</button>
+  <!-- Background Video -->
+  <video id="bg-video" autoplay muted playsinline>
+    <source src="assets/bg-video.mp4" type="video/mp4" />
+    Your browser does not support the video tag.
+  </video>
 
-    <div id="link-box">
-      <input type="text" id="invite-link" readonly />
+  <!-- Centered CTA Area -->
+  <div class="center-box" id="cta-area">
+
+    <!-- Initial Fancy Button -->
+    <button class="img-button" id="invite-btn">
+      <img src="assets/invite-btn.png" alt="Invite Your Sibling" />
+    </button>
+
+    <!-- Invite Link + Copy + Start Button -->
+    <div class="invite-box hidden" id="invite-box">
+      <input type="text" id="invite-link" value="https://yourapp.com/room/abcd1234" readonly />
       <button id="copy-btn">Copy</button>
+
+      <!-- Fancy Start Button -->
+      <button class="img-button" id="start-btn">
+        <img src="assets/start-btn.png" alt="Start Celebration" />
+      </button>
     </div>
+
   </div>
 
   <script src="script.js"></script>
