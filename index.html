@@ -7,32 +7,24 @@
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
+  <div class="background"></div>
 
-  <!-- Background Video -->
-  <video id="bg-video" autoplay muted playsinline>
-    <source src="assets/bg-video.mp4" type="video/mp4" />
-    Your browser does not support the video tag.
-  </video>
-
-  <!-- Centered CTA Area -->
-  <div class="center-box" id="cta-area">
-
-    <!-- Initial Fancy Button -->
+  <div class="container">
+    <!-- Invite Button -->
     <button class="img-button" id="invite-btn">
       <img src="assets/invite-btn.png" alt="Invite Your Sibling" />
     </button>
 
-    <!-- Invite Link + Copy + Start Button -->
-    <div class="invite-box hidden" id="invite-box">
-      <input type="text" id="invite-link" value="https://yourapp.com/room/abcd1234" readonly />
-      <button id="copy-btn">Copy</button>
-
-      <!-- Fancy Start Button -->
+    <!-- Link + Copy + Start: Hidden initially -->
+    <div class="invite-section hidden" id="invite-section">
+      <div class="link-copy">
+        <input type="text" id="invite-link" readonly />
+        <button id="copy-btn">Copy</button>
+      </div>
       <button class="img-button" id="start-btn">
         <img src="assets/start-btn.png" alt="Start Celebration" />
       </button>
     </div>
-
   </div>
 
   <script src="script.js"></script>
