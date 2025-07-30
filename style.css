@@ -1,0 +1,57 @@
+body {
+  margin: 0;
+  font-family: 'Segoe UI', sans-serif;
+  background-color: #ffeded;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.container {
+  text-align: center;
+  padding: 20px;
+}
+
+.brand-logo {
+  width: 120px;
+  height: auto;
+  margin-bottom: 10px;
+}
+
+h1 {
+  font-size: 28px;
+  color: #d62828;
+  margin-bottom: 10px;
+}
+
+.description {
+  margin-bottom: 20px;
+  color: #333;
+}
+
+#inviteBtn {
+  background-color: #d62828;
+  color: white;
+  border: none;
+  padding: 12px 20px;
+  font-size: 16px;
+  cursor: pointer;
+  border-radius: 8px;
+}
+
+.link-box {
+  margin-top: 15px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+}
+
+.link-box input {
+  padding: 10px;
+  width: 250px;
+  font-size: 14px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+}
