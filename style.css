@@ -1,4 +1,3 @@
-/* Reset */
 * {
   margin: 0;
   padding: 0;
@@ -12,29 +11,24 @@ body, html {
   overflow: hidden;
 }
 
-/* Background video */
-#bg-video {
+.background {
+  background: url('assets/bg.gif') no-repeat center center/cover;
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  object-fit: cover;
   z-index: -1;
 }
 
-/* Center Container */
 .container {
   height: 100vh;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  text-align: center;
-  padding: 20px;
 }
 
-/* Fancy Image Buttons */
 .img-button {
   background: none;
   border: none;
@@ -48,41 +42,30 @@ body, html {
   height: auto;
 }
 
-/* Link + Copy section */
 .link-copy {
   display: flex;
-  align-items: center;
   gap: 10px;
-  margin: 15px 0;
-  flex-wrap: wrap;
-  justify-content: center;
+  align-items: center;
+  margin-bottom: 15px;
 }
 
 #invite-link {
   padding: 10px;
-  width: 250px;
+  width: 240px;
+  border: 2px solid black;
+  border-radius: 6px;
   font-size: 16px;
-  border: 2px solid #000;
-  border-radius: 10px;
-  background-color: #fff;
-  text-align: center;
 }
 
 #copy-btn {
   padding: 10px 15px;
-  background-color: #222;
-  color: #fff;
+  background: #111;
+  color: white;
   border: none;
-  border-radius: 10px;
+  border-radius: 6px;
   cursor: pointer;
-  font-size: 15px;
 }
 
 .hidden {
-  display: none !important;
-}
-
-/* Hide start-btn until activated */
-#start-btn {
   display: none;
 }
