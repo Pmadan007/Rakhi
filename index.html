@@ -7,24 +7,24 @@
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <!-- Background Video -->
-  <video autoplay muted id="bg-video">
-    <source src="assets/bg.mp4" type="video/mp4" />
-    Your browser does not support the video tag.
-  </video>
+  <div class="background"></div>
 
-  <!-- Main Container -->
   <div class="container">
-    <!-- Invite Button -->
     <button class="img-button" id="invite-btn">
       <img src="assets/invite-btn.svg" alt="Invite Your Sibling" />
     </button>
 
-    <!-- Hidden Initially -->
     <div class="invite-section hidden" id="invite-section">
       <div class="link-copy">
         <input type="text" id="invite-link" readonly />
         <button id="copy-btn">Copy</button>
       </div>
+      <button class="img-button" id="start-btn">
+        <img src="assets/start-btn.svg" alt="Start Celebration" />
+      </button>
+    </div>
+  </div>
 
-      <button class="img-button" id="
+  <script src="script.js"></script>
+</body>
+</html>
