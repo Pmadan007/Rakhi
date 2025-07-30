@@ -2,50 +2,23 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Celebrate Rakhi</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
   <div class="container">
-    <div class="header">
-      <img src="logo.png" alt="Brand Logo" class="brand-logo" />
-      <h1>Celebrate Rakhi with <span id="brand">Zepto</span></h1>
-    </div>
-    <p class="description">
-      Invite your sibling and celebrate Raksha Bandhan virtually with Tilak & Aarti.
-    </p>
-    
-    <button id="inviteBtn">Invite Your Sibling</button>
-    
-    <div class="link-box" id="linkBox" style="display: none;">
-      <input type="text" id="roomLink" readonly />
-      <button onclick="copyLink()">📋</button>
+    <img src="logo.png" alt="Brand Logo" class="brand-logo" />
+    <h1>Celebrate Rakhi with <span id="brand">Zepto</span></h1>
+
+    <button id="invite-btn">Invite Your Sibling</button>
+
+    <div id="link-box">
+      <input type="text" id="invite-link" readonly />
+      <button id="copy-btn">Copy</button>
     </div>
   </div>
 
-  <script>
-    const inviteBtn = document.getElementById("inviteBtn");
-    const linkBox = document.getElementById("linkBox");
-    const roomLink = document.getElementById("roomLink");
-
-    const dummyLinks = [
-      "https://rakhiapp.com/room/abc123",
-      "https://rakhiapp.com/room/rakhi786",
-      "https://rakhiapp.com/room/love4bro"
-    ];
-
-    inviteBtn.addEventListener("click", () => {
-      const randomLink = dummyLinks[Math.floor(Math.random() * dummyLinks.length)];
-      roomLink.value = randomLink;
-      linkBox.style.display = "flex";
-    });
-
-    function copyLink() {
-      roomLink.select();
-      document.execCommand("copy");
-      alert("Link copied!");
-    }
-  </script>
+  <script src="script.js"></script>
 </body>
 </html>
