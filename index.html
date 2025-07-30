@@ -4,33 +4,27 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Celebrate Rakhi</title>
-  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
   <!-- Background Video -->
-  <video autoplay muted playsinline id="bg-video">
+  <video autoplay muted id="bg-video">
     <source src="assets/bg.mp4" type="video/mp4" />
+    Your browser does not support the video tag.
   </video>
 
-  <!-- Main Content -->
+  <!-- Main Container -->
   <div class="container">
     <!-- Invite Button -->
     <button class="img-button" id="invite-btn">
-      <img src="assets/invite-btn.png" alt="Invite Your Sibling" />
+      <img src="assets/invite-btn.svg" alt="Invite Your Sibling" />
     </button>
 
-    <!-- Invite Section: Hidden initially -->
+    <!-- Hidden Initially -->
     <div class="invite-section hidden" id="invite-section">
       <div class="link-copy">
         <input type="text" id="invite-link" readonly />
         <button id="copy-btn">Copy</button>
       </div>
-      <button class="img-button" id="start-btn">
-        <img src="assets/start-btn.png" alt="Start Celebration" />
-      </button>
-    </div>
-  </div>
 
-  <script src="script.js"></script>
-</body>
-</html>
+      <button class="img-button" id="
