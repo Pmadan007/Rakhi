@@ -6,9 +6,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
   inviteBtn.addEventListener("click", () => {
     const links = [
-      "https://rakhi.app/invite/abc123",
-      "https://rakhi.app/invite/xyz789",
-      "https://rakhi.app/invite/mno456"
+      "https://rakhi.zepto/invite/abc123",
+      "https://rakhi.zepto/invite/xyz789",
+      "https://rakhi.zepto/invite/mno456"
     ];
     inviteLink.value = links[Math.floor(Math.random() * links.length)];
     inviteBtn.style.display = "none";
