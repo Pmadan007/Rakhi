@@ -1,19 +1,24 @@
-// Freeze video on last frame
-document.getElementById("bg-video").onended = function () {
-  this.pause();
-  this.currentTime = this.duration;
-};
+document.addEventListener("DOMContentLoaded", () => {
+  const inviteBtn = document.getElementById("invite-btn");
+  const inviteSection = document.getElementById("invite-section");
+  const inviteLink = document.getElementById("invite-link");
+  const copyBtn = document.getElementById("copy-btn");
 
-// Show invite link + copy + start button
-document.getElementById("invite-btn").addEventListener("click", () => {
-  document.getElementById("invite-btn").classList.add("hidden");
-  document.getElementById("invite-box").classList.remove("hidden");
-});
+  inviteBtn.addEventListener("click", () => {
+    // Simulate invite link
+    const codes = ["https://rakhi.app/invite/abc123", "https://rakhi.app/invite/xyz789", "https://rakhi.app/invite/mno456"];
+    const randomLink = codes[Math.floor(Math.random() * codes.length)];
+    inviteLink.value = randomLink;
 
-// Copy to clipboard
-document.getElementById("copy-btn").addEventListener("click", () => {
-  const linkInput = document.getElementById("invite-link");
-  linkInput.select();
-  document.execCommand("copy");
-  alert("Link copied!");
+    // Hide invite button and show link + start
+    inviteBtn.style.display = "none";
+    inviteSection.classList.remove("hidden");
+  });
+
+  copyBtn.addEventListener("click", () => {
+    inviteLink.select();
+    document.execCommand("copy");
+    copyBtn.innerText = "Copied!";
+    setTimeout(() => (copyBtn.innerText = "Copy"), 1500);
+  });
 });
