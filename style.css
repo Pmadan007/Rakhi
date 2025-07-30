@@ -1,57 +1,60 @@
 body {
-  margin: 0;
-  font-family: 'Segoe UI', sans-serif;
-  background-color: #ffeded;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
+  font-family: sans-serif;
+  background: url('your-bg.jpg') no-repeat center center fixed;
+  background-size: cover;
+  text-align: center;
+  padding: 40px 20px;
+  color: white;
 }
 
 .container {
-  text-align: center;
+  max-width: 400px;
+  margin: auto;
+  background-color: rgba(0, 0, 0, 0.5);
   padding: 20px;
+  border-radius: 12px;
 }
 
 .brand-logo {
-  width: 120px;
+  width: 80px;
   height: auto;
   margin-bottom: 10px;
 }
 
-h1 {
-  font-size: 28px;
-  color: #d62828;
-  margin-bottom: 10px;
-}
-
-.description {
-  margin-bottom: 20px;
-  color: #333;
-}
-
-#inviteBtn {
-  background-color: #d62828;
-  color: white;
+#invite-btn {
+  padding: 12px 24px;
+  background-color: #ff4081;
   border: none;
-  padding: 12px 20px;
+  border-radius: 8px;
+  color: white;
   font-size: 16px;
   cursor: pointer;
-  border-radius: 8px;
+  margin-top: 20px;
 }
 
-.link-box {
-  margin-top: 15px;
-  display: flex;
+#link-box {
+  display: none;
+  margin-top: 20px;
   justify-content: center;
   align-items: center;
   gap: 10px;
+  flex-direction: row;
 }
 
-.link-box input {
+#invite-link {
+  width: 70%;
   padding: 10px;
-  width: 250px;
-  font-size: 14px;
-  border-radius: 5px;
-  border: 1px solid #ccc;
+  border: none;
+  border-radius: 6px;
+  font-size: 15px;
+}
+
+#copy-btn {
+  padding: 10px;
+  background-color: #00e676;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  color: white;
+  font-weight: bold;
 }
