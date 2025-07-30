@@ -5,17 +5,17 @@ document.addEventListener("DOMContentLoaded", () => {
   const copyBtn = document.getElementById("copy-btn");
 
   inviteBtn.addEventListener("click", () => {
-    // Generate random invite link
+    // Simulate random invite link
     const links = [
       "https://rakhi.app/invite/abc123",
       "https://rakhi.app/invite/xyz789",
       "https://rakhi.app/invite/mno456"
     ];
-    const random = links[Math.floor(Math.random() * links.length)];
-    inviteLink.value = random;
+    const randomLink = links[Math.floor(Math.random() * links.length)];
+    inviteLink.value = randomLink;
 
-    // Hide the invite button, show the link and start button
-    inviteBtn.classList.add("hidden");
+    // Hide invite button, show the rest
+    inviteBtn.style.display = "none";
     inviteSection.classList.remove("hidden");
   });
 
@@ -23,8 +23,6 @@ document.addEventListener("DOMContentLoaded", () => {
     inviteLink.select();
     document.execCommand("copy");
     copyBtn.innerText = "Copied!";
-    setTimeout(() => {
-      copyBtn.innerText = "Copy";
-    }, 1500);
+    setTimeout(() => (copyBtn.innerText = "Copy"), 1500);
   });
 });
