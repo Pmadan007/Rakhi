@@ -3,14 +3,17 @@ document.addEventListener("DOMContentLoaded", () => {
   const inviteSection = document.getElementById("invite-section");
   const inviteLink = document.getElementById("invite-link");
   const copyBtn = document.getElementById("copy-btn");
+  const startBtn = document.getElementById("start-btn");
   const video = document.getElementById("bg-video");
 
-  // Pause video at end to freeze on last frame
-  video.addEventListener("ended", () => {
-    video.pause();
+  // Freeze video on last frame
+  video.addEventListener("timeupdate", () => {
+    if (video.currentTime >= video.duration - 0.1) {
+      video.pause();
+    }
   });
 
-  // Handle Invite Button Click
+  // Invite Button logic
   inviteBtn.addEventListener("click", () => {
     const codes = [
       "https://rakhi.app/invite/abc123",
@@ -20,11 +23,13 @@ document.addEventListener("DOMContentLoaded", () => {
     const randomLink = codes[Math.floor(Math.random() * codes.length)];
     inviteLink.value = randomLink;
 
+    // Toggle visibility
     inviteBtn.style.display = "none";
     inviteSection.classList.remove("hidden");
+    startBtn.style.display = "block";
   });
 
-  // Copy to clipboard
+  // Copy button logic
   copyBtn.addEventListener("click", () => {
     inviteLink.select();
     document.execCommand("copy");
