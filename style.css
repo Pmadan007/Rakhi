@@ -1,78 +1,72 @@
-/* Reset + Base */
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-}
-
-body, html {
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
   font-family: sans-serif;
 }
 
-/* Background Video */
-video#bg-video {
-  position: absolute;
+body, html {
+  height: 100%;
+  width: 100%;
+}
+
+.background {
+  background: url('assets/bg.gif') no-repeat center center/cover;
+  position: fixed;
   top: 0;
   left: 0;
-  object-fit: cover;
   width: 100%;
   height: 100%;
   z-index: -1;
 }
 
-/* Center Content */
-.center-box {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+.container {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
   text-align: center;
+  padding: 20px;
 }
 
-/* Image Button */
 .img-button {
   background: none;
   border: none;
+  padding: 0;
   cursor: pointer;
+  margin: 10px 0;
 }
 
 .img-button img {
-  max-width: 280px;
+  width: 250px;
   height: auto;
 }
 
-/* Invite Link Area */
-.invite-box {
-  margin-top: 20px;
+.link-copy {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  gap: 15px;
+  gap: 10px;
+  margin: 15px 0;
 }
 
-.invite-box input {
+#invite-link {
   padding: 10px;
-  width: 260px;
+  width: 220px;
   font-size: 16px;
-  border-radius: 8px;
-  border: 1px solid #ccc;
-  text-align: center;
+  border: 2px solid #000;
+  border-radius: 6px;
 }
 
-.invite-box button#copy-btn {
+#copy-btn {
   padding: 10px 15px;
-  font-size: 16px;
-  background: #ff4081;
-  color: white;
+  background-color: #222;
+  color: #fff;
   border: none;
-  border-radius: 8px;
+  border-radius: 6px;
   cursor: pointer;
 }
 
-/* Hidden */
 .hidden {
   display: none;
 }
