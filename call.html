@@ -3,38 +3,24 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Raksha Bandhan Call</title>
-  <style>
-    html, body {
-      margin: 0;
-      padding: 0;
-      height: 100%;
-      overflow: hidden;
-    }
-    iframe {
-      width: 100%;
-      height: 100%;
-      border: none;
-    }
-  </style>
+  <title>Joining Rakhi Room...</title>
 </head>
 <body>
-  <iframe id="call-frame"
-    allow="camera; microphone; fullscreen; display-capture"
-  ></iframe>
-
   <script>
-    const urlParams = new URLSearchParams(window.location.search);
-    const roomId = urlParams.get("room");
+    const params = new URLSearchParams(window.location.search);
+    const roomId = params.get("room");
+    const role = params.get("role") || "brother";
 
     if (!roomId) {
-      alert("Room ID missing!");
+      document.body.textContent = "Room ID missing in URL";
     } else {
-      // 👇 Replace with your actual subdomain
-      const subdomain = "rakhi-celebrate";
-      const role = "guest"; // or "host" if needed
-      const userName = "Sibling";
-
+      const userName = role === "sister" ? "Sister" : "Brother";
+      const url = `https://rakhi-celebrate.app.100ms.live/preview/${roomId}?role=${role}&user_name=${userName}&skip_preview=true`;
+      window.location.href = url;
+    }
+  </script>
+</body>
+</html>
       const iframeUrl = `https://${subdomain}.app.100ms.live/preview/${roomId}?role=${role}&user_name=${userName}`;
       document.getElementById("call-frame").src = iframeUrl;
     }
