@@ -9,19 +9,32 @@ document.addEventListener("DOMContentLoaded", () => {
 
   inviteBtn.addEventListener("click", async () => {
     const room_name = "rakhi_" + Math.random().toString(36).substring(2, 10);
-    const res = await fetch("/.netlify/functions/createRoom", {
-      method: "POST",
-      body: JSON.stringify({ room_name }),
-    });
-    const data = await res.json();
-    roomId = data.id;
+    
+    try {
+      const res = await fetch("/.netlify/functions/createRoom", {
+        method: "POST",
+        body: JSON.stringify({ room_name }),
+      });
 
-    const fullLink = `${window.location.origin}/call.html?room=${roomId}`;
-    inviteLink.value = fullLink;
+      const data = await res.json();
+      console.log("Room creation response:", data); // helpful for debugging
 
-    inviteBtn.style.display = "none";
-    inviteSection.classList.remove("hidden");
-    startBtn.classList.remove("hidden");
+      if (!data.id) {
+        alert("Room creation failed. Please try again.");
+        return;
+      }
+
+      roomId = data.id;
+      const fullLink = `${window.location.origin}/call.html?room=${roomId}`;
+      inviteLink.value = fullLink;
+
+      inviteBtn.style.display = "none";
+      inviteSection.classList.remove("hidden");
+      startBtn.classList.remove("hidden");
+    } catch (err) {
+      console.error("Room creation error:", err);
+      alert("Failed to create room. Please check console.");
+    }
   });
 
   copyBtn.addEventListener("click", () => {
@@ -35,5 +48,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (roomId) {
       window.location.href = `call.html?room=${roomId}`;
     }
+  });
+});    }
   });
 });
