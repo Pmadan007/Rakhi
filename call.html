@@ -1,40 +1,54 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
+  <title>Raksha Bandhan Call</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Rakhi Celebration Room</title>
-  <script type="module">
-    import { HMSRoomProvider, HMSReactive, useHMSStore, selectIsConnectedToRoom, selectPeers, selectIsLocalAudioEnabled, selectIsLocalVideoEnabled, selectLocalPeer, selectIsLocalScreenShared, selectScreenShareByPeerID } from "https://unpkg.com/@100mslive/react-sdk?module";
-    import { HMSPrebuilt } from "https://unpkg.com/@100mslive/roomkit-web@latest";
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      background-color: #000;
+    }
+    #frame {
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+  </style>
+</head>
+<body>
+  <iframe id="frame" allow="camera; microphone; autoplay"></iframe>
 
-    document.addEventListener("DOMContentLoaded", async () => {
+  <script>
+    async function loadCall() {
       const urlParams = new URLSearchParams(window.location.search);
-      const roomId = urlParams.get("room");
-
-      if (!roomId) {
-        document.body.innerHTML = "<h2>No room ID provided.</h2>";
+      const room = urlParams.get("room");
+      if (!room) {
+        alert("No room specified.");
         return;
       }
 
-      // Generate a random user ID
-      const userId = "user_" + Math.floor(Math.random() * 100000);
+      // Call the Netlify function to get token
+      try {
+        const response = await fetch(`/.netlify/functions/generateToken?room=${room}`);
+        const data = await response.json();
 
-      const response = await fetch("/.netlify/functions/generateToken", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          user_id: userId,
-          room_id: roomId,
-          role: "host" // or "guest"
-        })
-      });
+        if (!data.token) throw new Error("Token not received");
 
-      const data = await response.json();
-      if (!data.token) {
-        document.body.innerHTML = "<h2>Failed to fetch token.</h2>";
-        return;
+        const iframe = document.getElementById("frame");
+        iframe.src = `https://100ms.live/preview/${data.token}`;
+      } catch (err) {
+        console.error("Failed to load token:", err);
+        alert("Something went wrong while joining the call.");
       }
+    }
+
+    loadCall();
+  </script>
+</body>
+</html>      }
 
       const room = new HMSPrebuilt();
       room.join({
