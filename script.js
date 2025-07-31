@@ -8,10 +8,9 @@ document.addEventListener("DOMContentLoaded", () => {
   let roomId = "";
 
   inviteBtn.addEventListener("click", () => {
-    // Generate random room name
     roomId = "rakhi_" + Math.random().toString(36).substr(2, 8);
     const fullLink = `${window.location.origin}/call.html?room=${roomId}`;
-
+    
     inviteLink.value = fullLink;
 
     inviteBtn.style.display = "none";
@@ -31,18 +30,4 @@ document.addEventListener("DOMContentLoaded", () => {
       window.location.href = `call.html?room=${roomId}`;
     }
   });
-});    if (roomId) {
-      window.location.href = `call.html?room=${roomId}`;
-    }
-  });
-});  startBtn.addEventListener("click", () => {
-    if (roomId) {
-      window.location.href = `call.html?room=${roomId}`;
-    }
-  });
-});    if (roomId) {
-      window.location.href = `call.html?room=${roomId}`;
-    }
-  });
 });
-
