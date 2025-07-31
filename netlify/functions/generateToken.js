@@ -1,25 +1,27 @@
-const jwt = require("jsonwebtoken");
+const fetch = require("node-fetch");
 
 exports.handler = async function (event) {
-  const { user_id = "user", role = "sister", room_id } = JSON.parse(event.body || "{}");
+  const { room_id, user_id, role } = JSON.parse(event.body || "{}");
 
-  const app_access_key = "688ba7bbbd0dab5f9a013465";
-  const app_secret = "e5LfPS3lwoZRq76gt5QVKh6FZOpRx6me1oti17HiulXtz-pEILp3ARb5XD3jze71YTo6TCkYVmndW7FYXhoJ68-9YKAJGWoAMdk_8itncFFYpuxYCh3ZvfJXXXCOkHIT2wx-CoYsLZtSzmNvIfHqeSSMNWxWsUv2hDQdzu2OXSw=";
+  const management_token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE3NTM5OTIzNjQsImV4cCI6MTc1NTIwMTk2NCwianRpIjoiNDM2OTIwZDItZDkxMy00NWM5LWFmOWEtZmZhNWYxMWFiZWVkIiwidHlwZSI6Im1hbmFnZW1lbnQiLCJ2ZXJzaW9uIjoyLCJuYmYiOjE3NTM5OTIzNjQsImFjY2Vzc19rZXkiOiI2ODhiYTdiYmJkMGRhYjVmOWEwMTM0NjUifQ.ruf-t9UsgpCeN1DDd9s70t3VCS0b3qjZk-pE_5O3p-Y";
 
-  const payload = {
-    access_key: app_access_key,
-    type: "app",
-    version: 2,
-    iat: Math.floor(Date.now() / 1000),
-    exp: Math.floor(Date.now() / 1000) + 24 * 60 * 60,
-    room_id,
-    user_id,
-    role,
-  };
+  const response = await fetch("https://api.100ms.live/v2/room-tokens", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${management_token}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      room_id,
+      user_id,
+      role: role || "guest",
+    }),
+  });
 
-  const token = jwt.sign(payload, app_secret);
+  const data = await response.json();
+
   return {
     statusCode: 200,
-    body: JSON.stringify({ token }),
+    body: JSON.stringify(data),
   };
 };
