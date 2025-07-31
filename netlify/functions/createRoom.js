@@ -20,9 +20,10 @@ exports.handler = async function (event) {
   });
 
   const data = await response.json();
+  console.log("Room creation response:", data); // 👈 helpful debug line
 
   return {
     statusCode: 200,
-    body: JSON.stringify({ id: data.id }), // ✅ Only return the ID
+    body: JSON.stringify({ id: data.id }), // only send required data
   };
 };
