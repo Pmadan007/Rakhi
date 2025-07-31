@@ -1,40 +1,53 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Raksha Bandhan Call</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8" />
+  <title>Rakhi Call</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script src="https://unpkg.com/@100mslive/hms-video@latest/dist/hms-video.min.js"></script>
   <style>
-    html, body {
+    body, html {
       margin: 0;
       padding: 0;
       height: 100%;
-      background-color: #000;
-    }
-    #frame {
       width: 100%;
-      height: 100%;
-      border: none;
+      background: #f5f5f5;
+    }
+    #video-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      padding: 20px;
+    }
+    video {
+      width: 300px;
+      height: 200px;
+      background: black;
+    }
+    #join-screen {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding-top: 50px;
+    }
+    #join-btn {
+      padding: 10px 20px;
+      margin-top: 10px;
     }
   </style>
 </head>
 <body>
-  <iframe id="frame" allow="camera; microphone; autoplay"></iframe>
 
-  <script>
-    async function loadCall() {
-      const urlParams = new URLSearchParams(window.location.search);
-      const room = urlParams.get("room");
-      if (!room) {
-        alert("No room specified.");
-        return;
-      }
+<div id="join-screen">
+  <input type="text" id="name" placeholder="Enter your name" />
+  <button id="join-btn">Join Rakhi Room</button>
+</div>
 
-      // Call the Netlify function to get token
-      try {
-        const response = await fetch(`/.netlify/functions/generateToken?room=${room}`);
-        const data = await response.json();
+<div id="video-container" style="display:none;"></div>
 
+<script src="video.js"></script>
+</body>
+</html>
         if (!data.token) throw new Error("Token not received");
 
         const iframe = document.getElementById("frame");
