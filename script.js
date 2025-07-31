@@ -7,7 +7,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   let roomId = "";
 
-  // Generate a unique room ID (simple version)
   function generateRoomId() {
     const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
     let result = '';
@@ -18,7 +17,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   inviteBtn.addEventListener("click", () => {
-    roomId = generateRoomId();
+    roomId = "rakhi_" + generateRoomId();
     const fullLink = `${window.location.origin}/call.html?room=${roomId}`;
     inviteLink.value = fullLink;
 
@@ -30,11 +29,17 @@ document.addEventListener("DOMContentLoaded", () => {
     inviteLink.select();
     document.execCommand("copy");
     copyBtn.innerText = "Copied!";
+    startBtn.classList.remove("hidden");
+
     setTimeout(() => (copyBtn.innerText = "Copy"), 1500);
   });
 
   startBtn.addEventListener("click", () => {
     if (roomId) {
+      window.location.href = `call.html?room=${roomId}`;
+    }
+  });
+});    if (roomId) {
       window.location.href = `call.html?room=${roomId}`;
     }
   });
