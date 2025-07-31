@@ -5,12 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Rakhi Video Call</title>
 
-  <!-- 100ms JavaScript SDK -->
-  <script src="https://unpkg.com/@100mslive/hms-video@latest/dist/index.min.js"></script>
-
-  <!-- Your custom call logic -->
-  <script defer src="call.js"></script>
-
   <style>
     body {
       margin: 0;
@@ -23,6 +17,29 @@
 
     h1 {
       margin-top: 20px;
+    }
+
+    #loading {
+      margin: 20px;
+      padding: 20px;
+      background: #fff3cd;
+      border-radius: 5px;
+      color: #856404;
+    }
+
+    #error {
+      margin: 20px;
+      padding: 20px;
+      background: #f8d7da;
+      border-radius: 5px;
+      color: #721c24;
+    }
+
+    #status {
+      margin: 10px;
+      padding: 10px;
+      border-radius: 5px;
+      text-align: center;
     }
 
     #video-container {
@@ -40,10 +57,236 @@
       border-radius: 10px;
       object-fit: cover;
     }
+
+    .peer-wrapper {
+      position: relative;
+      display: inline-block;
+    }
+
+    .peer-name {
+      position: absolute;
+      bottom: 10px;
+      left: 10px;
+      color: white;
+      background: rgba(0,0,0,0.7);
+      padding: 5px;
+      border-radius: 5px;
+      font-size: 12px;
+    }
+
+    .audio-only {
+      width: 300px;
+      height: 200px;
+      background: #333;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      flex-direction: column;
+    }
   </style>
 </head>
 <body>
   <h1>🎥 Raksha Bandhan Call</h1>
+  
+  <div id="loading">Loading HMS SDK...</div>
+  <div id="error" style="display: none;"></div>
+  <div id="status" style="display: none;"></div>
   <div id="video-container"></div>
+
+  <!-- Load HMS SDK with error handling -->
+  <script>
+    function loadHMSSDK() {
+      return new Promise((resolve, reject) => {
+        const script = document.createElement('script');
+        script.src = 'https://sdk.100ms.live/web/hms.js';
+        script.onload = () => {
+          console.log('HMS SDK loaded successfully');
+          // Wait a bit for the SDK to initialize
+          setTimeout(() => {
+            if (typeof HMSReactiveStore !== 'undefined') {
+              resolve();
+            } else {
+              reject(new Error('HMS SDK loaded but HMSReactiveStore not available'));
+            }
+          }, 100);
+        };
+        script.onerror = (error) => {
+          console.error('Failed to load HMS SDK:', error);
+          reject(new Error('Failed to load HMS SDK'));
+        };
+        document.head.appendChild(script);
+      });
+    }
+
+    // Main application logic
+    async function initializeApp() {
+      const loadingDiv = document.getElementById('loading');
+      const errorDiv = document.getElementById('error');
+      
+      try {
+        // Load HMS SDK
+        await loadHMSSDK();
+        loadingDiv.style.display = 'none';
+        
+        // Get URL parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const roomId = urlParams.get("room");
+        const role = urlParams.get("role") || "sister";
+
+        if (!roomId) {
+          throw new Error("No room ID provided in URL. Please add ?room=YOUR_ROOM_ID to the URL");
+        }
+
+        console.log(`Joining room: ${roomId} as ${role}`);
+
+        // Get token
+        const tokenUrl = `/.netlify/functions/getToken?roomId=${roomId}&role=${role}`;
+        console.log("Fetching token from:", tokenUrl);
+        
+        const tokenRes = await fetch(tokenUrl);
+        
+        if (!tokenRes.ok) {
+          const errorText = await tokenRes.text();
+          throw new Error(`Token fetch failed (${tokenRes.status}): ${errorText}`);
+        }
+
+        const tokenJson = await tokenRes.json();
+        
+        if (!tokenJson.token) {
+          throw new Error("No token received from server");
+        }
+
+        console.log("✅ Token received successfully");
+
+        // Initialize HMS
+        const hms = new HMSReactiveStore.HMSStore();
+        const hmsActions = new HMSReactiveStore.HMSActions(hms);
+        const hmsNotifications = new HMSReactiveStore.HMSNotifications(hms);
+
+        // Show status
+        const statusDiv = document.getElementById('status');
+        statusDiv.style.display = 'block';
+        statusDiv.innerHTML = '🔄 Connecting...';
+        statusDiv.style.background = '#fff3cd';
+        statusDiv.style.color = '#856404';
+
+        // Listen for notifications
+        hmsNotifications.onNotification((notification) => {
+          console.log("HMS Notification:", notification);
+          if (notification.type === "ERROR") {
+            console.error("HMS Error:", notification.data);
+            showError(`HMS Error: ${notification.data.message}`);
+          }
+        });
+
+        // Join the room
+        await hmsActions.join({
+          userName: role === "sister" ? "Sister" : "Brother",
+          authToken: tokenJson.token,
+          settings: {
+            isAudioMuted: false,
+            isVideoMuted: false,
+          },
+          rememberDeviceSelection: true,
+        });
+
+        console.log("✅ Join request sent");
+
+        // Subscribe to store changes
+        hms.subscribe((store) => {
+          console.log("Store update:", {
+            isConnected: store.isConnected,
+            peers: Object.keys(store.peers).length,
+            localPeer: store.localPeer?.name,
+            connectionState: store.connectionState
+          });
+
+          updateUI(store, hmsActions);
+        });
+
+      } catch (error) {
+        console.error("❌ Application error:", error);
+        showError(error.message);
+        loadingDiv.style.display = 'none';
+      }
+    }
+
+    function showError(message) {
+      const errorDiv = document.getElementById('error');
+      errorDiv.style.display = 'block';
+      errorDiv.innerHTML = `❌ ${message}`;
+    }
+
+    function updateUI(store, hmsActions) {
+      const container = document.getElementById("video-container");
+      const statusDiv = document.getElementById('status');
+      
+      // Update status
+      if (store.isConnected) {
+        statusDiv.innerHTML = `✅ Connected as ${store.localPeer?.name} | Peers: ${Object.keys(store.peers).length}`;
+        statusDiv.style.background = "#d4edda";
+        statusDiv.style.color = "#155724";
+      } else {
+        statusDiv.innerHTML = `🔄 Connecting... (${store.connectionState || 'unknown'})`;
+        statusDiv.style.background = "#fff3cd";
+        statusDiv.style.color = "#856404";
+      }
+
+      // Clear existing videos
+      container.innerHTML = "";
+
+      // Add videos for all peers
+      Object.values(store.peers).forEach(peer => {
+        console.log(`Processing peer: ${peer.name} (${peer.id})`);
+        
+        // Check for video track
+        if (peer.videoTrack) {
+          const videoTrack = store.tracks[peer.videoTrack];
+          if (videoTrack && videoTrack.enabled && !videoTrack.degraded) {
+            console.log(`Adding video for ${peer.name}`);
+            
+            const wrapper = document.createElement("div");
+            wrapper.className = "peer-wrapper";
+            
+            const video = document.createElement("video");
+            video.autoplay = true;
+            video.playsInline = true;
+            video.muted = peer.isLocal; // Mute local video to prevent feedback
+            
+            const nameLabel = document.createElement("div");
+            nameLabel.className = "peer-name";
+            nameLabel.textContent = peer.name + (peer.isLocal ? " (You)" : "");
+            
+            wrapper.appendChild(video);
+            wrapper.appendChild(nameLabel);
+            container.appendChild(wrapper);
+            
+            // Attach video track
+            hmsActions.attachVideo(videoTrack.id, video);
+          }
+        }
+        // Handle audio-only participants
+        else if (peer.audioTrack) {
+          const audioTrack = store.tracks[peer.audioTrack];
+          if (audioTrack && audioTrack.enabled) {
+            console.log(`Adding audio-only peer: ${peer.name}`);
+            
+            const audioDiv = document.createElement("div");
+            audioDiv.className = "audio-only";
+            audioDiv.innerHTML = `
+              <div style="font-size: 48px;">🎤</div>
+              <div style="margin-top: 10px;">${peer.name}${peer.isLocal ? " (You)" : ""}</div>
+            `;
+            container.appendChild(audioDiv);
+          }
+        }
+      });
+    }
+
+    // Start the application when DOM is loaded
+    document.addEventListener("DOMContentLoaded", initializeApp);
+  </script>
 </body>
 </html>
