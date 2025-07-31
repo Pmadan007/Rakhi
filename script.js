@@ -7,13 +7,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
   let roomId = "";
 
+  // Generate a unique room ID (simple version)
   function generateRoomId() {
-    const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
-    let id = '';
+    const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    let result = '';
     for (let i = 0; i < 8; i++) {
-      id += chars.charAt(Math.floor(Math.random() * chars.length));
+      result += chars.charAt(Math.floor(Math.random() * chars.length));
     }
-    return id;
+    return result;
   }
 
   inviteBtn.addEventListener("click", () => {
@@ -23,18 +24,21 @@ document.addEventListener("DOMContentLoaded", () => {
 
     inviteBtn.style.display = "none";
     inviteSection.classList.remove("hidden");
-    startBtn.classList.remove("hidden");
   });
 
   copyBtn.addEventListener("click", () => {
     inviteLink.select();
-    navigator.clipboard.writeText(inviteLink.value).then(() => {
-      copyBtn.innerText = "Copied!";
-      setTimeout(() => (copyBtn.innerText = "Copy"), 2000);
-    });
+    document.execCommand("copy");
+    copyBtn.innerText = "Copied!";
+    setTimeout(() => (copyBtn.innerText = "Copy"), 1500);
   });
 
   startBtn.addEventListener("click", () => {
+    if (roomId) {
+      window.location.href = `call.html?room=${roomId}`;
+    }
+  });
+});  startBtn.addEventListener("click", () => {
     if (roomId) {
       window.location.href = `call.html?room=${roomId}`;
     }
