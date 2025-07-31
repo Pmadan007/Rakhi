@@ -1,82 +1,34 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8" />
-  <title>Rakhi Call</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <script src="https://unpkg.com/@100mslive/hms-video@latest/dist/hms-video.min.js"></script>
-  <style>
-    body, html {
-      margin: 0;
-      padding: 0;
-      height: 100%;
-      width: 100%;
-      background: #f5f5f5;
-    }
-    #video-container {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      padding: 20px;
-    }
-    video {
-      width: 300px;
-      height: 200px;
-      background: black;
-    }
-    #join-screen {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding-top: 50px;
-    }
-    #join-btn {
-      padding: 10px 20px;
-      margin-top: 10px;
-    }
-  </style>
+  <title>Join Call</title>
+  <script src="https://unpkg.com/@100mslive/roomkit-web"></script>
 </head>
 <body>
+  <div id="app" style="height: 100vh;"></div>
+  <script>
+    async function joinCall() {
+      const roomId = new URLSearchParams(window.location.search).get("room");
+      const role = "sister"; // or "brother" — you can make this dynamic
 
-<div id="join-screen">
-  <input type="text" id="name" placeholder="Enter your name" />
-  <button id="join-btn">Join Rakhi Room</button>
-</div>
+      const res = await fetch("/.netlify/functions/generateToken", {
+        method: "POST",
+        body: JSON.stringify({
+          room_id: roomId,
+          user_id: Math.random().toString(36).substring(2, 10),
+          role
+        })
+      });
 
-<div id="video-container" style="display:none;"></div>
+      const { token } = await res.json();
 
-<script src="video.js"></script>
+      window.HMSRoomKit.mount("#app", {
+        token,
+        options: { debug: false }
+      });
+    }
+
+    joinCall();
+  </script>
 </body>
 </html>
-        if (!data.token) throw new Error("Token not received");
-
-        const iframe = document.getElementById("frame");
-        iframe.src = `https://100ms.live/preview/${data.token}`;
-      } catch (err) {
-        console.error("Failed to load token:", err);
-        alert("Something went wrong while joining the call.");
-      }
-    }
-
-    loadCall();
-  </script>
-</body>
-</html>      }
-
-      const room = new HMSPrebuilt();
-      room.join({
-        userName: "Sibling",
-        authToken: data.token,
-        settings: {
-          isAudioMuted: false,
-          isVideoMuted: false
-        }
-      });
-    });
-  </script>
-</head>
-<body>
-  <h2 style="text-align: center;">Joining Rakhi Room...</h2>
-</body>
-</html></html>
-
