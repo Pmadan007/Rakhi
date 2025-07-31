@@ -3,38 +3,36 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Rakhi Call</title>
-  <script src="https://unpkg.com/@100mslive/roomkit-web@latest" defer></script>
+  <title>Rakhi Room</title>
+  <style>
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+    }
+    iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+  </style>
 </head>
-<body style="margin:0;padding:0;">
-  <div id="app"></div>
+<body>
+  <iframe id="room-frame" allow="camera; microphone; fullscreen" src=""></iframe>
 
   <script>
-    async function joinCall() {
-      const roomId = new URLSearchParams(window.location.search).get("room");
-      const role = "host"; // or "guest"
+    const urlParams = new URLSearchParams(window.location.search);
+    const room = urlParams.get("room");
 
-      const res = await fetch("/.netlify/functions/generateToken", {
-        method: "POST",
-        body: JSON.stringify({
-          room_id: roomId,
-          user_id: Math.random().toString(36).substring(2, 10),
-          role
-        })
-      });
-
-      const { token } = await res.json();
-
-      window.HMSRoomKit.mount("#app", {
-        token,
-        options: {
-          debug: false
-        }
-      });
+    if (!room) {
+      document.body.innerHTML = "<h2 style='text-align:center;margin-top:40vh;'>Invalid or missing room ID.</h2>";
+    } else {
+      const iframe = document.getElementById("room-frame");
+      iframe.src = `https://yoursubdomain.100ms.live/preview/${room}`; // Replace `yoursubdomain` with your 100ms domain
     }
-
-    joinCall();
   </script>
+</body>
+</html>  </script>
 </body>
 </html>
 
