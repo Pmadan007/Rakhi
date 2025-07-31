@@ -1,40 +1,52 @@
 document.addEventListener("DOMContentLoaded", async () => {
-  console.log("[✅] DOM loaded");
+  console.log("[log] DOM loaded");
 
   const urlParams = new URLSearchParams(window.location.search);
-  const roomId = urlParams.get("room") || urlParams.get("roomId");
-  const userType = urlParams.get("userType") || "sister"; // default to sister if not provided
+  const roomId = urlParams.get("room");
+  const role = urlParams.get("role") || "brother";
 
-  if (!roomId || !userType) {
-    console.error("❌ Missing roomId or userType in URL");
-    return;
-  }
+  console.log(`[log] Joining room: ${roomId} as ${role}`);
 
-  console.log(`[👥] Joining room: ${roomId} as ${userType}`);
-
+  const tokenUrl = `/netlify/functions/getToken?roomId=${roomId}&role=${role}`;
   try {
-    const response = await fetch("/.netlify/functions/getToken", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ roomId, userType })
-    });
-
+    const response = await fetch(tokenUrl);
     const data = await response.json();
-    console.log("[🪙] Token response:", data);
+    console.log("[log] Token response:", data);
 
     if (!data.token) {
       console.error("❌ No token received");
       return;
     }
 
-    const hms = window.HMS;
-    if (!hms) {
-      console.error("❌ 100ms SDK not loaded");
-      return;
-    }
-
-    const hmsConfig = {
+    const hms = new window.HMS.SDK.HMSRoom();
+    await hms.join({
+      userName: role === "brother" ? "Brother" : "Sister",
       authToken: data.token,
+      settings: {
+        isAudioMuted: false,
+        isVideoMuted: false,
+      }
+    });
+
+    hms.on("peer-joined", peer => {
+      console.log("Peer joined:", peer.name);
+    });
+
+    hms.on("track-added", (track, peer) => {
+      if (track.type === "video") {
+        const video = document.createElement("video");
+        video.autoplay = true;
+        video.muted = peer.isLocal;
+        document.body.appendChild(video);
+        hms.attachVideo(track, video);
+      }
+    });
+
+    console.log("✅ Joined room successfully");
+  } catch (err) {
+    console.error("❌ Error joining room:", err);
+  }
+});      authToken: data.token,
       userName: userType === "sister" ? "Sister" : "Brother"
     };
 
