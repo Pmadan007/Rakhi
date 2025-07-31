@@ -3,36 +3,35 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Joining Rakhi Room...</title>
+  <title>Rakhi Call</title>
+  <style>
+    body {
+      background: #000;
+      color: white;
+      margin: 0;
+      padding: 0;
+    }
+    #video-container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+      padding: 20px;
+    }
+    video {
+      width: 300px;
+      height: 200px;
+      background: #333;
+      border-radius: 12px;
+    }
+  </style>
 </head>
 <body>
-  <script>
-    const params = new URLSearchParams(window.location.search);
-    const roomId = params.get("room");
-    const role = params.get("role") || "brother";
+  <div id="video-container"></div>
 
-    if (!roomId) {
-      document.body.textContent = "Room ID missing in URL";
-    } else {
-      const userName = role === "sister" ? "Sister" : "Brother";
-      const url = `https://rakhi-celebrate.app.100ms.live/preview/${roomId}?role=${role}&user_name=${userName}&skip_preview=true`;
-      window.location.href = url;
-    }
-  </script>
+  <!-- 100ms JS SDK via CDN -->
+  <script src="https://unpkg.com/@100mslive/hms-video"></script>
+  <script src="/call.js"></script>
 </body>
-</html>
-      const iframeUrl = `https://${subdomain}.app.100ms.live/preview/${roomId}?role=${role}&user_name=${userName}`;
-      document.getElementById("call-frame").src = iframeUrl;
-    }
-  </script>
-</body>
-</html>      const hms = new HMSReactiveStore.HMSRoomProvider();
-      await hms.join({ authToken: token, userName: "Sibling" });
-
-      document.getElementById("video-container").innerText = "✅ Joined room (console only)";
-    }
-
-    joinRoom();
-  </script>
-</body>
+</html></body>
 </html>
