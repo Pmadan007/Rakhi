@@ -1,58 +1,54 @@
 document.addEventListener("DOMContentLoaded", async () => {
-  console.log("[log] DOM loaded");
+  console.log("DOM loaded");
 
   const urlParams = new URLSearchParams(window.location.search);
   const roomId = urlParams.get("room");
-  const role = urlParams.get("role") || "brother";
+  const role = urlParams.get("role") || "sister";
 
-  console.log(`[log] Joining room: ${roomId} as ${role}`);
+  console.log(`[${new Date().toLocaleTimeString()}] Joining room: ${roomId} as ${role}`);
 
   const tokenUrl = `/netlify/functions/getToken?roomId=${roomId}&role=${role}`;
-  try {
-    const response = await fetch(tokenUrl);
-    const data = await response.json();
-    console.log("[log] Token response:", data);
+  const tokenRes = await fetch(tokenUrl);
+  const tokenJson = await tokenRes.json();
 
-    if (!data.token) {
-      console.error("❌ No token received");
-      return;
-    }
+  console.log(`[${new Date().toLocaleTimeString()}] Token response:`, tokenJson);
 
-    const hms = new window.HMS.SDK.HMSRoom();
-    await hms.join({
-      userName: role === "brother" ? "Brother" : "Sister",
-      authToken: data.token,
-      settings: {
-        isAudioMuted: false,
-        isVideoMuted: false,
-      }
-    });
+  if (!tokenJson.token) {
+    console.error("❌ No token received");
+    return;
+  }
 
-    hms.on("peer-joined", peer => {
-      console.log("Peer joined:", peer.name);
-    });
+  const token = tokenJson.token;
 
-    hms.on("track-added", (track, peer) => {
-      if (track.type === "video") {
+  const hms = new HMSReactiveStore.HMSStore();
+  const hmsActions = new HMSReactiveStore.HMSActions(hms);
+  const hmsNotifications = new HMSReactiveStore.HMSNotifications(hms);
+
+  await hmsActions.join({
+    userName: role === "sister" ? "Sister" : "Brother",
+    authToken: token,
+    settings: {
+      isAudioMuted: false,
+      isVideoMuted: false,
+    },
+    rememberDeviceSelection: true,
+  });
+
+  hms.subscribe((store) => {
+    const peers = store.peers;
+    const container = document.getElementById("video-container");
+    container.innerHTML = "";
+
+    for (let peerId in peers) {
+      const peer = peers[peerId];
+      const videoTrack = store.videoTracks[peer.videoTrack];
+      if (videoTrack && videoTrack.enabled) {
         const video = document.createElement("video");
         video.autoplay = true;
-        video.muted = peer.isLocal;
-        document.body.appendChild(video);
-        hms.attachVideo(track, video);
+        video.playsInline = true;
+        hmsActions.attachVideo(videoTrack.id, video);
+        container.appendChild(video);
       }
-    });
-
-    console.log("✅ Joined room successfully");
-  } catch (err) {
-    console.error("❌ Error joining room:", err);
-  }
-});      authToken: data.token,
-      userName: userType === "sister" ? "Sister" : "Brother"
-    };
-
-    const join = await hms.prebuilt.join(hmsConfig);
-    console.log("[🎥] Joined room successfully");
-  } catch (error) {
-    console.error("❌ Error during token fetch or room join:", error);
-  }
+    }
+  }, (state) => state);
 });
