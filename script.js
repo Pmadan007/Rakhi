@@ -7,10 +7,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
   let roomId = "";
 
-  inviteBtn.addEventListener("click", () => {
-    roomId = "rakhi_" + Math.random().toString(36).substr(2, 8);
+  inviteBtn.addEventListener("click", async () => {
+    const room_name = "rakhi_" + Math.random().toString(36).substring(2, 10);
+    const res = await fetch("/.netlify/functions/createRoom", {
+      method: "POST",
+      body: JSON.stringify({ room_name }),
+    });
+    const data = await res.json();
+    roomId = data.id;
+
     const fullLink = `${window.location.origin}/call.html?room=${roomId}`;
-    
     inviteLink.value = fullLink;
 
     inviteBtn.style.display = "none";
@@ -22,7 +28,7 @@ document.addEventListener("DOMContentLoaded", () => {
     inviteLink.select();
     document.execCommand("copy");
     copyBtn.innerText = "Copied!";
-    setTimeout(() => copyBtn.innerText = "Copy", 1500);
+    setTimeout(() => (copyBtn.innerText = "Copy"), 1500);
   });
 
   startBtn.addEventListener("click", () => {
