@@ -3,19 +3,34 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Rakhi Call</title>
-  <link rel="stylesheet" href="style.css" />
+  <title>Join Rakhi Celebration</title>
+  <style>
+    html, body {
+      margin: 0;
+      height: 100%;
+      background-color: black;
+    }
+    #meeting-container {
+      width: 100%;
+      height: 100%;
+    }
+    #debug {
+      position: absolute;
+      bottom: 0;
+      color: white;
+      background: rgba(0,0,0,0.7);
+      padding: 10px;
+      font-size: 12px;
+      max-height: 200px;
+      overflow-y: scroll;
+    }
+  </style>
 </head>
 <body>
-  <div class="container">
-    <div id="video-container">
-      <iframe
-        id="jitsi-frame"
-        allow="camera; microphone; fullscreen; display-capture"
-        style="width: 100%; height: 90vh; border: none"
-      ></iframe>
-    </div>
-  </div>
+  <div id="meeting-container"></div>
+  <pre id="debug"></pre>
+
+  <script src="https://unpkg.com/100mslive/hms-video@latest"></script>
   <script src="call.js"></script>
 </body>
 </html>
