@@ -1,8 +1,8 @@
 {
-  "name": "rakhi-video-call",
+  "name": "rakhi-app",
   "version": "1.0.0",
   "dependencies": {
-    "node-fetch": "^2.6.7",
-    "jsonwebtoken": "^9.0.2"
+    "jsonwebtoken": "^9.0.0",
+    "node-fetch": "^2.6.9"
   }
 }
