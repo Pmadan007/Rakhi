@@ -1,42 +1,34 @@
 document.addEventListener("DOMContentLoaded", async () => {
-  console.log("🚀 DOM loaded");
-
   const urlParams = new URLSearchParams(window.location.search);
   const roomId = urlParams.get("room");
   const role = urlParams.get("role") || "sister";
 
-  console.log(`[🚀 Starting Rakhi call: room=${roomId}, role=${role}]`);
+  console.log(`🚀 Starting Rakhi call: room=${roomId}, role=${role}`);
 
   if (!roomId || !role) {
     alert("Missing room or role in URL");
     return;
   }
 
+  // ✅ Step 1: Get Token from Netlify Function
   const tokenUrl = `/.netlify/functions/getToken?roomId=${roomId}&role=${role}`;
-  console.log("[🔑 Fetching token from]:", tokenUrl);
-
   let token;
   try {
     const res = await fetch(tokenUrl);
     const data = await res.json();
-    console.log("[✅ Token response:]", data);
-
-    if (!data.token) {
-      console.error("❌ No token received");
-      return;
-    }
     token = data.token;
+    console.log("✅ Got token");
   } catch (err) {
-    console.error("❌ Failed to get token", err);
+    console.error("❌ Error fetching token", err);
     return;
   }
 
-  // ✅ Access HMS via UMD
+  // ✅ Step 2: Setup HMS
   const hmsStore = new window.HMSReactiveStore.HMSStore();
   const hmsActions = new window.HMSReactiveStore.HMSActions(hmsStore);
 
   await hmsActions.join({
-    userName: role === "sister" ? "Sister ❤️" : "Brother 🧿",
+    userName: role === "sister" ? "Sister 👧" : "Brother 🧑‍🦱",
     authToken: token,
     settings: {
       isAudioMuted: false,
@@ -44,15 +36,16 @@ document.addEventListener("DOMContentLoaded", async () => {
     },
   });
 
-  hmsStore.subscribe((peers) => {
-    const peerList = Object.values(peers);
+  // ✅ Step 3: Subscribe to peers and render
+  const renderVideo = () => {
+    const peers = hmsStore.getState((state) => state.peers);
     const localVideo = document.getElementById("local-video");
     const remoteVideo = document.getElementById("remote-video");
 
     localVideo.innerHTML = "";
     remoteVideo.innerHTML = "";
 
-    peerList.forEach((peer) => {
+    peers.forEach((peer) => {
       const videoEl = document.createElement("video");
       videoEl.autoplay = true;
       videoEl.playsInline = true;
@@ -60,11 +53,23 @@ document.addEventListener("DOMContentLoaded", async () => {
 
       hmsActions.attachVideo(peer.id, videoEl);
 
+      const wrapper = document.createElement("div");
+      wrapper.className = "peer-wrapper";
+
+      const nameTag = document.createElement("div");
+      nameTag.className = "peer-name";
+      nameTag.innerText = peer.name;
+
+      wrapper.appendChild(videoEl);
+      wrapper.appendChild(nameTag);
+
       if (peer.isLocal) {
-        localVideo.appendChild(videoEl);
+        localVideo.appendChild(wrapper);
       } else {
-        remoteVideo.appendChild(videoEl);
+        remoteVideo.appendChild(wrapper);
       }
     });
-  }, (selector) => selector.peers);
+  };
+
+  hmsStore.subscribe(renderVideo, (state) => state.peers);
 });
