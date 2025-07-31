@@ -1,3 +1,4 @@
+alert("Script is loaded!");
 function log(msg) {
   const debugEl = document.getElementById("debug");
   if (debugEl) debugEl.textContent += `\n${msg}`;
