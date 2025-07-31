@@ -14,18 +14,34 @@ document.addEventListener("DOMContentLoaded", async () => {
   console.log(`[${new Date().toLocaleTimeString()}] Joining room: ${roomId} as ${role}`);
 
   try {
-    // Get token
-    const tokenUrl = `/netlify/functions/getToken?roomId=${roomId}&role=${role}`;
+    // Get token with better debugging
+    const tokenUrl = `/.netlify/functions/getToken?roomId=${roomId}&role=${role}`;
     console.log("Fetching token from:", tokenUrl);
     
     const tokenRes = await fetch(tokenUrl);
-    const tokenJson = await tokenRes.json();
+    console.log("Response status:", tokenRes.status);
+    console.log("Response headers:", Object.fromEntries(tokenRes.headers.entries()));
+    
+    // Get response as text first to see what we're actually getting
+    const responseText = await tokenRes.text();
+    console.log("Raw response:", responseText);
 
-    console.log(`[${new Date().toLocaleTimeString()}] Token response:`, tokenJson);
+    // Try to parse as JSON
+    let tokenJson;
+    try {
+      tokenJson = JSON.parse(responseText);
+    } catch (parseError) {
+      console.error("❌ Failed to parse response as JSON:", parseError);
+      console.error("Response was:", responseText);
+      document.body.innerHTML += `<p style='color: red;'>Parse Error: Response was not JSON<br>Response: ${responseText.substring(0, 200)}...</p>`;
+      return;
+    }
+
+    console.log(`[${new Date().toLocaleTimeString()}] Parsed token response:`, tokenJson);
 
     if (!tokenRes.ok) {
       console.error("❌ Token fetch failed:", tokenJson);
-      document.body.innerHTML += `<p style='color: red;'>Token Error: ${tokenJson.error}</p>`;
+      document.body.innerHTML += `<p style='color: red;'>Token Error (${tokenRes.status}): ${tokenJson.error || 'Unknown error'}</p>`;
       return;
     }
 
@@ -36,8 +52,17 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     const token = tokenJson.token;
+    console.log("✅ Token received successfully");
+
+    // Test if HMS SDK is loaded
+    if (typeof HMSReactiveStore === 'undefined') {
+      console.error("❌ HMS SDK not loaded");
+      document.body.innerHTML += "<p style='color: red;'>Error: HMS SDK not loaded</p>";
+      return;
+    }
 
     // Initialize HMS
+    console.log("Initializing HMS...");
     const hms = new HMSReactiveStore.HMSStore();
     const hmsActions = new HMSReactiveStore.HMSActions(hms);
     const hmsNotifications = new HMSReactiveStore.HMSNotifications(hms);
@@ -53,24 +78,30 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     // Join the room
     console.log("Attempting to join room...");
-    await hmsActions.join({
-      userName: role === "sister" ? "Sister" : "Brother", 
-      authToken: token,
-      settings: {
-        isAudioMuted: false,
-        isVideoMuted: false,
-      },
-      rememberDeviceSelection: true,
-    });
-
-    console.log("✅ Join request sent successfully");
+    try {
+      await hmsActions.join({
+        userName: role === "sister" ? "Sister" : "Brother", 
+        authToken: token,
+        settings: {
+          isAudioMuted: false,
+          isVideoMuted: false,
+        },
+        rememberDeviceSelection: true,
+      });
+      console.log("✅ Join request sent successfully");
+    } catch (joinError) {
+      console.error("❌ Join failed:", joinError);
+      document.body.innerHTML += `<p style='color: red;'>Join Error: ${joinError.message}</p>`;
+      return;
+    }
 
     // Subscribe to store changes
     hms.subscribe((store) => {
       console.log("Store update:", {
         isConnected: store.isConnected,
         peers: Object.keys(store.peers).length,
-        localPeer: store.localPeer?.name
+        localPeer: store.localPeer?.name,
+        connectionState: store.connectionState
       });
 
       const peers = store.peers;
@@ -166,7 +197,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         statusDiv.style.background = "#d4edda";
         statusDiv.style.color = "#155724";
       } else {
-        statusDiv.innerHTML = "🔄 Connecting...";
+        statusDiv.innerHTML = `🔄 Connecting... (${store.connectionState || 'unknown'})`;
         statusDiv.style.background = "#fff3cd";
         statusDiv.style.color = "#856404";
       }
@@ -174,6 +205,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   } catch (error) {
     console.error("❌ Unexpected error:", error);
-    document.body.innerHTML += `<p style='color: red;'>Unexpected Error: ${error.message}</p>`;
+    document.body.innerHTML += `<p style='color: red;'>Unexpected Error: ${error.message}<br>Stack: ${error.stack}</p>`;
   }
 });
