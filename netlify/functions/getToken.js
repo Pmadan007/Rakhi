@@ -1,32 +1,43 @@
+const jwt = require("jsonwebtoken");
 const axios = require("axios");
 
-exports.handler = async function(event) {
-  const { room_id, role, user_name } = JSON.parse(event.body);
+exports.handler = async function (event, context) {
+  const { room_id, user_id, role } = JSON.parse(event.body || "{}");
 
-  const managementToken = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE3NTM5OTM4MDIsImV4cCI6MTc1NTIwMzQwMiwianRpIjoiMDdiYzg0YTYtN2ZkZi00MjFlLWE2NTctYjYzYmI0OTVmMDRkIiwidHlwZSI6Im1hbmFnZW1lbnQiLCJ2ZXJzaW9uIjoyLCJuYmYiOjE3NTM5OTM4MDIsImFjY2Vzc19rZXkiOiI2ODhiYTdiYmJkMGRhYjVmOWEwMTM0NjUifQ.SPvPZz7GriTQqxAjZ-FXE--P0E1QHLFND6OBl6SMx1w"; // Replace with actual
-  const appId = "YOUR_APP_ID"; // Optional, for logs
+  if (!room_id || !user_id || !role) {
+    return {
+      statusCode: 400,
+      body: JSON.stringify({ error: "Missing required fields" }),
+    };
+  }
+
+  const appAccessKey = "688ba7bbbd0dab5f9a013465";
+  const appSecret = "e5LfPS3lwoZRq76gt5QVKh6FZOpRx6me1oti17HiulXtz-pEILp3ARb5XD3jze71YTo6TCkYVmndW7FYXhoJ68-9YKAJGWoAMdk_8itncFFYpuxYCh3ZvfJXXXCOkHIT2wx-CoYsLZtSzmNvIfHqeSSMNWxWsUv2hDQdzu2OXSw=";
+  const payload = {
+    access_key: appAccessKey,
+    room_id,
+    user_id,
+    role,
+    type: "app",
+    version: 2,
+  };
+
+  const token = jwt.sign(payload, appSecret, { algorithm: "HS256", expiresIn: "1h" });
 
   try {
-    const response = await axios.post("https://api.100ms.live/v2/room-join", {
-      room_id,
-      user_id: `user_${Math.random().toString(36).substring(2)}`,
-      role,
-      user_name
-    }, {
-      headers: {
-        Authorization: `Bearer ${managementToken}`,
-        "Content-Type": "application/json",
-      },
+    const response = await axios.post("https://api.100ms.live/v2/meeting/tokens", {
+      token,
     });
 
     return {
       statusCode: 200,
-      body: JSON.stringify(response.data),
+      body: JSON.stringify({ token: response.data.token }),
     };
-  } catch (error) {
+  } catch (err) {
+    console.error("Error getting token:", err.message);
     return {
       statusCode: 500,
-      body: JSON.stringify({ error: error.message }),
+      body: JSON.stringify({ error: "Token fetch failed", details: err.message }),
     };
   }
 };
