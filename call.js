@@ -1,54 +1,49 @@
-const debug = (msg) => {
-  const el = document.getElementById("debug");
-  el.textContent += `[${new Date().toLocaleTimeString()}] ${msg}\n`;
-};
-
-window.addEventListener("DOMContentLoaded", async () => {
-  debug("DOM loaded");
+document.addEventListener("DOMContentLoaded", async () => {
+  console.log("[🟡] DOM loaded");
 
   const urlParams = new URLSearchParams(window.location.search);
   const roomId = urlParams.get("room");
-  const role = urlParams.get("role") || "brother";
-  const name = role === "sister" ? "Sister" : "Brother";
+  const role = urlParams.get("role") || "brother"; // fallback role
+  const userName = role === "sister" ? "Sister" : "Brother";
 
   if (!roomId) {
-    debug("❌ No room ID found in URL");
+    console.error("❌ No roomId provided in URL");
     return;
   }
 
-  debug(`Joining room: ${roomId} as ${role}`);
+  console.log(`[🔁] Joining room: ${roomId} as ${role}`);
 
   try {
-    const res = await fetch(`/.netlify/functions/getToken?roomId=${roomId}&role=${role}&userName=${name}`);
+    const res = await fetch("/.netlify/functions/getToken", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ roomId, role, userName })
+    });
+
     const data = await res.json();
-    debug(`Token response: ${JSON.stringify(data)}`);
+    console.log("[🟢] Token response:", data);
 
     if (!data.token) {
-      debug("❌ No token received");
+      console.error("❌ No token received");
       return;
     }
 
-    const hms = new HMSReactiveStore.HMSRoomProvider();
-    const config = {
-      userName: name,
-      authToken: data.token,
-      settings: {
-        isAudioMuted: true,
-        isVideoMuted: true
-      },
-      displayConfig: {
-        showLeaveRoomButton: true
-      },
-      joinConfig: {
-        roomId: roomId
-      }
+    const script = document.createElement("script");
+    script.src = "https://unpkg.com/100mslive@latest";
+    script.async = true;
+    script.onload = () => {
+      console.log("[🔷] 100ms script loaded. Initializing HMS...");
+      window.HMS.init({
+        authToken: data.token,
+        userName,
+        skipPreview: true
+      });
     };
 
-    debug("🟢 Initializing 100ms iframe...");
-    hms.join(config);
-    document.getElementById("meeting-container").appendChild(hms.getIframe());
-
+    document.body.appendChild(script);
   } catch (err) {
-    debug(`❌ Error joining room: ${err.message}`);
+    console.error("❌ Fetch or token error:", err);
   }
 });
