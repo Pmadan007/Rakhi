@@ -2,39 +2,22 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Rakhi Video Call</title>
+  <title>Raksha Bandhan Video Call</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <!-- ✅ Load HMS SDK UMD directly -->
+  <script src="https://unpkg.com/@100mslive/hms-video-store@latest/dist/hms-video-store.umd.js"></script>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <h1>Raksha Bandhan Video Call</h1>
+  <div id="video-container">
+    <div id="local-video"></div>
+    <div id="remote-video"></div>
+  </div>
 
-  <style>
-    body {
-      margin: 0;
-      font-family: sans-serif;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      min-height: 100vh;
-      color: white;
-    }
-
-    h1 {
-      margin-top: 20px;
-      color: white;
-      text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-    }
-
-    #loading {
-      margin: 20px;
-      padding: 20px;
-      background: rgba(255, 255, 255, 0.1);
-      border-radius: 15px;
-      color: white;
-      backdrop-filter: blur(10px);
-      border: 1px solid rgba(255, 255, 255, 0.2);
-    }
-
-    #error {
-      margin: 20px;
+  <script src="call.js"></script>
+</body>
+</html>      margin: 20px;
       padding: 20px;
       background: rgba(248, 215, 218, 0.9);
       border-radius: 15px;
