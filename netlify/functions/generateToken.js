@@ -1,27 +1,32 @@
-const fetch = require("node-fetch");
+const axios = require("axios");
 
-exports.handler = async function (event) {
-  const { room_id, user_id, role } = JSON.parse(event.body || "{}");
+exports.handler = async function(event) {
+  const { room_id, role, user_name } = JSON.parse(event.body);
 
-  const management_token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE3NTM5OTIzNjQsImV4cCI6MTc1NTIwMTk2NCwianRpIjoiNDM2OTIwZDItZDkxMy00NWM5LWFmOWEtZmZhNWYxMWFiZWVkIiwidHlwZSI6Im1hbmFnZW1lbnQiLCJ2ZXJzaW9uIjoyLCJuYmYiOjE3NTM5OTIzNjQsImFjY2Vzc19rZXkiOiI2ODhiYTdiYmJkMGRhYjVmOWEwMTM0NjUifQ.ruf-t9UsgpCeN1DDd9s70t3VCS0b3qjZk-pE_5O3p-Y";
+  const managementToken = "YOUR_MANAGEMENT_TOKEN"; // Replace with actual
+  const appId = "YOUR_APP_ID"; // Optional, for logs
 
-  const response = await fetch("https://api.100ms.live/v2/room-tokens", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${management_token}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
+  try {
+    const response = await axios.post("https://api.100ms.live/v2/room-join", {
       room_id,
-      user_id,
-      role: role || "guest",
-    }),
-  });
+      user_id: `user_${Math.random().toString(36).substring(2)}`,
+      role,
+      user_name
+    }, {
+      headers: {
+        Authorization: `Bearer ${managementToken}`,
+        "Content-Type": "application/json",
+      },
+    });
 
-  const data = await response.json();
-
-  return {
-    statusCode: 200,
-    body: JSON.stringify(data),
-  };
+    return {
+      statusCode: 200,
+      body: JSON.stringify(response.data),
+    };
+  } catch (error) {
+    return {
+      statusCode: 500,
+      body: JSON.stringify({ error: error.message }),
+    };
+  }
 };
