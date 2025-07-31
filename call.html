@@ -1,42 +1,24 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Join Rakhi Celebration</title>
-  <style>
-    html, body {
-      margin: 0;
-      height: 100%;
-      background-color: black;
-    }
-    #meeting-container {
-      width: 100%;
-      height: 100%;
-    }
-    #debug {
-      position: absolute;
-      bottom: 0;
-      color: white;
-      background: rgba(0,0,0,0.7);
-      padding: 10px;
-      font-size: 12px;
-      max-height: 200px;
-      overflow-y: scroll;
-    }
-  </style>
-</head>
-<body>
-  <div id="meeting-container"></div>
-  <pre id="debug"></pre>
-
-  <!-- ✅ 100ms SDK script -->
-  <script src="https://unpkg.com/@100mslive/hms-video-store@latest/dist/index.umd.js"></script>
-<script>
-  console.log("✅ Inline script is working");
-  document.body.style.backgroundColor = "darkblue";
-</script>
-  <!-- ✅ Your call.js script -->
-  <script src="call.js"></script>
-</body>
+<html>
+  <head>
+    <title>Raksha Bandhan Call</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <style>
+      html, body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+      }
+      #hms-video {
+        width: 100%;
+        height: 100%;
+      }
+    </style>
+    <script src="https://unpkg.com/@100mslive/roomkit-web@latest"></script>
+  </head>
+  <body>
+    <div id="hms-video"></div>
+    <script src="call.js"></script>
+  </body>
 </html>
