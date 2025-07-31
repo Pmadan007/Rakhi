@@ -1,32 +1,54 @@
-document.addEventListener("DOMContentLoaded", async () => {
+const debug = (msg) => {
+  const el = document.getElementById("debug");
+  el.textContent += `[${new Date().toLocaleTimeString()}] ${msg}\n`;
+};
+
+window.addEventListener("DOMContentLoaded", async () => {
+  debug("DOM loaded");
+
   const urlParams = new URLSearchParams(window.location.search);
   const roomId = urlParams.get("room");
-  const role = urlParams.get("role") || "brother"; // default to brother
+  const role = urlParams.get("role") || "brother";
+  const name = role === "sister" ? "Sister" : "Brother";
 
   if (!roomId) {
-    alert("Room ID missing!");
+    debug("❌ No room ID found in URL");
     return;
   }
 
-  const userName = role === "sister" ? "Sister" : "Brother";
+  debug(`Joining room: ${roomId} as ${role}`);
 
   try {
-    const res = await fetch("/.netlify/functions/getToken", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ room_id: roomId, role, user_name: userName }),
-    });
-
+    const res = await fetch(`/.netlify/functions/getToken?roomId=${roomId}&role=${role}&userName=${name}`);
     const data = await res.json();
+    debug(`Token response: ${JSON.stringify(data)}`);
+
     if (!data.token) {
-      console.error("Token fetch failed", data);
-      alert("Unable to fetch token.");
+      debug("❌ No token received");
       return;
     }
 
-    const iframe = document.getElementById("jitsi-frame");
-    iframe.src = `https://rakhi-celebrate.app.100ms.live/preview/${roomId}?auth_token=${data.token}&skip_preview=true`;
+    const hms = new HMSReactiveStore.HMSRoomProvider();
+    const config = {
+      userName: name,
+      authToken: data.token,
+      settings: {
+        isAudioMuted: true,
+        isVideoMuted: true
+      },
+      displayConfig: {
+        showLeaveRoomButton: true
+      },
+      joinConfig: {
+        roomId: roomId
+      }
+    };
+
+    debug("🟢 Initializing 100ms iframe...");
+    hms.join(config);
+    document.getElementById("meeting-container").appendChild(hms.getIframe());
+
   } catch (err) {
-    console.error("Error loading call:", err);
+    debug(`❌ Error joining room: ${err.message}`);
   }
 });
