@@ -4,7 +4,7 @@ exports.handler = async function (event) {
   const { room_name } = JSON.parse(event.body || "{}");
 
   const app_secret = "e5LfPS3lwoZRq76gt5QVKh6FZOpRx6me1oti17HiulXtz-pEILp3ARb5XD3jze71YTo6TCkYVmndW7FYXhoJ68-9YKAJGWoAMdk_8itncFFYpuxYCh3ZvfJXXXCOkHIT2wx-CoYsLZtSzmNvIfHqeSSMNWxWsUv2hDQdzu2OXSw=";
-  const template_id = "6481f99f2208a6e8d31cbb8b"; // replace if needed
+  const template_id = "688ba850033903926e619679"; // replace if needed
 
   const response = await fetch("https://api.100ms.live/v2/rooms", {
     method: "POST",
