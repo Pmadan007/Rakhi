@@ -50,24 +50,3 @@ exports.handler = async function (event, context) {
     };
   }
 };
-    return {
-      statusCode: 200,
-      body: JSON.stringify({ token: response.data.token })
-    };
-  } catch (error) {
-    console.error("❌ getToken error:", error.response?.data || error.message);
-    return {
-      statusCode: 500,
-      body: JSON.stringify({
-        error: "Token generation failed",
-        details: error.response?.data || error.message
-      })
-    };
-  }
-};    console.error("Error getting token:", err.message);
-    return {
-      statusCode: 500,
-      body: JSON.stringify({ error: "Token fetch failed", details: err.message }),
-    };
-  }
-};
