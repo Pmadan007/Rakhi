@@ -4,34 +4,18 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Rakhi Call</title>
-  <style>
-    body {
-      background: #000;
-      color: white;
-      margin: 0;
-      padding: 0;
-    }
-    #video-container {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 10px;
-      padding: 20px;
-    }
-    video {
-      width: 300px;
-      height: 200px;
-      background: #333;
-      border-radius: 12px;
-    }
-  </style>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <div id="video-container"></div>
-
-  <!-- 100ms JS SDK via CDN -->
-  <script src="https://unpkg.com/@100mslive/hms-video"></script>
-  <script src="/call.js"></script>
+  <div class="container">
+    <div id="video-container">
+      <iframe
+        id="jitsi-frame"
+        allow="camera; microphone; fullscreen; display-capture"
+        style="width: 100%; height: 90vh; border: none"
+      ></iframe>
+    </div>
+  </div>
+  <script src="call.js"></script>
 </body>
-</html></body>
 </html>
