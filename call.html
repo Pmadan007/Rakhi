@@ -150,6 +150,7 @@
     let currentStream = null;
     let isAudioMuted = false;
     let isVideoMuted = false;
+    let hmsSDK = null;
 
     // Debug function
     function addDebugInfo(message) {
@@ -175,116 +176,157 @@
       statusDiv.style.color = textColor;
     }
 
-    // Try to load HMS SDK dynamically with multiple fallback URLs
+    // Debug what objects are available in window
+    function debugWindowObjects() {
+      const hmsRelated = [];
+      for (let key in window) {
+        if (key.toLowerCase().includes('hms') || key.toLowerCase().includes('100ms')) {
+          hmsRelated.push(key);
+        }
+      }
+      addDebugInfo(`HMS-related objects in window: ${hmsRelated.join(', ')}`);
+      
+      // Also check for common SDK patterns
+      const commonObjects = ['HMS', 'HMSReactiveStore', 'HMSVideoStore', 'HMSSDK', 'HMSStore', 'HMSActions'];
+      commonObjects.forEach(obj => {
+        if (window[obj]) {
+          addDebugInfo(`✅ Found ${obj}:`, typeof window[obj]);
+          if (typeof window[obj] === 'object') {
+            addDebugInfo(`${obj} properties: ${Object.keys(window[obj]).join(', ')}`);
+          }
+        }
+      });
+    }
+
+    // Try to load HMS SDK with better object detection
     async function loadHMSSDK() {
-      const sdkUrls = [
-        'https://unpkg.com/@100mslive/hms-video-store@latest/dist/index.js',
-        'https://cdn.jsdelivr.net/npm/@100mslive/hms-video-store@latest/dist/index.js',
-        'https://sdk.100ms.live/web/hms.js'
+      const sdkConfigs = [
+        {
+          url: 'https://unpkg.com/@100mslive/hms-video-store@latest/dist/index.js',
+          checkObjects: ['HMSReactiveStore', 'HMS', 'HMSVideoStore']
+        },
+        {
+          url: 'https://cdn.jsdelivr.net/npm/@100mslive/hms-video-store@latest/dist/index.js',
+          checkObjects: ['HMSReactiveStore', 'HMS', 'HMSVideoStore']
+        },
+        {
+          url: 'https://sdk.100ms.live/web/hms.js',
+          checkObjects: ['HMSReactiveStore', 'HMS', 'HMSSDK']
+        }
       ];
 
-      for (const url of sdkUrls) {
+      for (const config of sdkConfigs) {
         try {
-          addDebugInfo(`Trying to load HMS SDK from: ${url}`);
+          addDebugInfo(`Trying to load HMS SDK from: ${config.url}`);
           
           await new Promise((resolve, reject) => {
             const script = document.createElement('script');
-            script.src = url;
+            script.src = config.url;
             script.onload = resolve;
             script.onerror = reject;
             document.head.appendChild(script);
             
-            // Timeout after 10 seconds
-            setTimeout(() => reject(new Error('Timeout')), 10000);
+            // Timeout after 15 seconds
+            setTimeout(() => reject(new Error('Timeout')), 15000);
           });
 
-          // Wait for SDK to initialize
-          await new Promise(resolve => setTimeout(resolve, 1000));
+          // Wait longer for SDK to initialize
+          await new Promise(resolve => setTimeout(resolve, 2000));
 
-          // Check if HMS is available
-          if (typeof HMSReactiveStore !== 'undefined') {
-            addDebugInfo('✅ HMS SDK loaded successfully!');
-            return true;
-          } else if (typeof HMS !== 'undefined') {
-            addDebugInfo('✅ HMS object found, setting up HMSReactiveStore...');
-            window.HMSReactiveStore = HMS.HMSReactiveStore || HMS;
-            return true;
+          // Debug what's available
+          debugWindowObjects();
+
+          // Check for HMS objects
+          for (const objName of config.checkObjects) {
+            if (window[objName]) {
+              addDebugInfo(`✅ Found ${objName}!`);
+              hmsSDK = window[objName];
+              
+              // Try to set up the proper structure
+              if (objName === 'HMS' && !window.HMSReactiveStore) {
+                if (hmsSDK.HMSReactiveStore) {
+                  window.HMSReactiveStore = hmsSDK.HMSReactiveStore;
+                  addDebugInfo('✅ Set up HMSReactiveStore from HMS object');
+                } else if (hmsSDK.HMSStore) {
+                  window.HMSReactiveStore = {
+                    HMSStore: hmsSDK.HMSStore,
+                    HMSActions: hmsSDK.HMSActions,
+                    HMSNotifications: hmsSDK.HMSNotifications
+                  };
+                  addDebugInfo('✅ Created HMSReactiveStore structure from HMS object');
+                }
+              }
+              
+              return true;
+            }
           }
 
-          addDebugInfo(`❌ HMS objects not found from ${url}`);
+          addDebugInfo(`❌ No HMS objects found from ${config.url}`);
         } catch (error) {
-          addDebugInfo(`❌ Failed to load from ${url}: ${error.message}`);
+          addDebugInfo(`❌ Failed to load from ${config.url}: ${error.message}`);
         }
       }
 
       return false;
     }
 
-    // HMS-based implementation
+    // HMS-based implementation with better error handling
     async function initializeHMSCall(roomId, role, authToken) {
       try {
-        const hmsStore = new HMSReactiveStore.HMSStore();
-        const hmsActions = new HMSReactiveStore.HMSActions(hmsStore);
-        const hmsNotifications = new HMSReactiveStore.HMSNotifications(hmsStore);
+        addDebugInfo('Initializing HMS call...');
+        
+        // Try different ways to access HMS classes
+        let HMSStore, HMSActions, HMSNotifications;
+        
+        if (window.HMSReactiveStore) {
+          HMSStore = window.HMSReactiveStore.HMSStore;
+          HMSActions = window.HMSReactiveStore.HMSActions;
+          HMSNotifications = window.HMSReactiveStore.HMSNotifications;
+        } else if (hmsSDK) {
+          HMSStore = hmsSDK.HMSStore;
+          HMSActions = hmsSDK.HMSActions;
+          HMSNotifications = hmsSDK.HMSNotifications;
+        }
 
-        // Set up notifications
-        hmsNotifications.onNotification((notification) => {
-          addDebugInfo(`HMS Notification: ${notification.type}`);
-          if (notification.type === 'ERROR') {
-            showError(`HMS Error: ${notification.data.message}`);
-          }
-        });
+        if (!HMSStore || !HMSActions) {
+          throw new Error('HMS classes not found');
+        }
+
+        addDebugInfo('✅ HMS classes found, creating store...');
+
+        const hmsStore = new HMSStore();
+        const hmsActions = new HMSActions(hmsStore);
+        const hmsNotifications = HMSNotifications ? new HMSNotifications(hmsStore) : null;
+
+        addDebugInfo('✅ HMS objects created successfully');
+
+        // Set up notifications if available
+        if (hmsNotifications) {
+          hmsNotifications.onNotification((notification) => {
+            addDebugInfo(`HMS Notification: ${notification.type} - ${JSON.stringify(notification.data)}`);
+            if (notification.type === 'ERROR') {
+              showError(`HMS Error: ${notification.data.message}`);
+            }
+          });
+        }
 
         // Subscribe to store changes
         hmsStore.subscribe((store) => {
-          addDebugInfo(`Store update: connected=${store.isConnected}, peers=${Object.keys(store.peers).length}`);
+          addDebugInfo(`Store update: connected=${store.isConnected}, peers=${Object.keys(store.peers || {}).length}, state=${store.connectionState}`);
           
           if (store.isConnected) {
-            updateStatus(`✅ Connected as ${store.localPeer?.name} | Peers: ${Object.keys(store.peers).length}`, '#d4edda', '#155724');
+            updateStatus(`✅ Connected as ${store.localPeer?.name} | Peers: ${Object.keys(store.peers || {}).length}`, '#d4edda', '#155724');
             document.getElementById('controls').style.display = 'flex';
           } else {
-            updateStatus('🔄 Connecting...', '#fff3cd', '#856404');
+            updateStatus(`🔄 ${store.connectionState || 'Connecting'}...`, '#fff3cd', '#856404');
           }
 
           // Update video container
-          const container = document.getElementById('video-container');
-          container.innerHTML = '';
-
-          Object.values(store.peers).forEach(peer => {
-            if (peer.videoTrack) {
-              const videoTrack = store.tracks[peer.videoTrack];
-              if (videoTrack && videoTrack.enabled) {
-                const wrapper = document.createElement('div');
-                wrapper.className = 'peer-wrapper';
-                
-                const video = document.createElement('video');
-                video.autoplay = true;
-                video.playsInline = true;
-                video.muted = peer.isLocal;
-                
-                const nameLabel = document.createElement('div');
-                nameLabel.className = 'peer-name';
-                nameLabel.textContent = peer.name + (peer.isLocal ? ' (You)' : '');
-                
-                wrapper.appendChild(video);
-                wrapper.appendChild(nameLabel);
-                container.appendChild(wrapper);
-                
-                hmsActions.attachVideo(videoTrack.id, video);
-              }
-            } else if (peer.audioTrack) {
-              const audioDiv = document.createElement('div');
-              audioDiv.className = 'audio-only';
-              audioDiv.innerHTML = `
-                <div style="font-size: 48px;">🎤</div>
-                <div style="margin-top: 10px;">${peer.name}${peer.isLocal ? ' (You)' : ''}</div>
-              `;
-              container.appendChild(audioDiv);
-            }
-          });
+          updateVideoContainer(store, hmsActions);
         });
 
         // Join room
+        addDebugInfo('Attempting to join room...');
         await hmsActions.join({
           userName: role === "sister" ? "Sister" : "Brother",
           authToken: authToken,
@@ -294,33 +336,105 @@
           },
         });
 
+        addDebugInfo('✅ Join request sent successfully');
+
         // Set up controls
-        document.getElementById('toggleAudio').onclick = async () => {
-          await hmsActions.setLocalAudioEnabled(isAudioMuted);
-          isAudioMuted = !isAudioMuted;
-        };
-
-        document.getElementById('toggleVideo').onclick = async () => {
-          await hmsActions.setLocalVideoEnabled(isVideoMuted);
-          isVideoMuted = !isVideoMuted;
-        };
-
-        document.getElementById('leaveRoom').onclick = async () => {
-          await hmsActions.leave();
-          container.innerHTML = '';
-          document.getElementById('controls').style.display = 'none';
-          updateStatus('👋 Left the room', '#d1ecf1', '#0c5460');
-        };
-
-        addDebugInfo('✅ HMS call initialized successfully');
+        setupHMSControls(hmsActions);
 
       } catch (error) {
         addDebugInfo(`❌ HMS call failed: ${error.message}`);
+        addDebugInfo(`Error stack: ${error.stack}`);
         throw error;
       }
     }
 
-    // Fallback WebRTC implementation
+    function updateVideoContainer(store, hmsActions) {
+      const container = document.getElementById('video-container');
+      container.innerHTML = '';
+
+      if (!store.peers) {
+        addDebugInfo('No peers in store');
+        return;
+      }
+
+      Object.values(store.peers).forEach(peer => {
+        addDebugInfo(`Processing peer: ${peer.name} (${peer.id})`);
+        
+        if (peer.videoTrack && store.tracks) {
+          const videoTrack = store.tracks[peer.videoTrack];
+          if (videoTrack && videoTrack.enabled) {
+            addDebugInfo(`Adding video for ${peer.name}`);
+            
+            const wrapper = document.createElement('div');
+            wrapper.className = 'peer-wrapper';
+            
+            const video = document.createElement('video');
+            video.autoplay = true;
+            video.playsInline = true;
+            video.muted = peer.isLocal;
+            
+            const nameLabel = document.createElement('div');
+            nameLabel.className = 'peer-name';
+            nameLabel.textContent = peer.name + (peer.isLocal ? ' (You)' : '');
+            
+            wrapper.appendChild(video);
+            wrapper.appendChild(nameLabel);
+            container.appendChild(wrapper);
+            
+            hmsActions.attachVideo(videoTrack.id, video);
+          }
+        } else if (peer.audioTrack && store.tracks) {
+          const audioTrack = store.tracks[peer.audioTrack];
+          if (audioTrack && audioTrack.enabled) {
+            addDebugInfo(`Adding audio-only peer: ${peer.name}`);
+            
+            const audioDiv = document.createElement('div');
+            audioDiv.className = 'audio-only';
+            audioDiv.innerHTML = `
+              <div style="font-size: 48px;">🎤</div>
+              <div style="margin-top: 10px;">${peer.name}${peer.isLocal ? ' (You)' : ''}</div>
+            `;
+            container.appendChild(audioDiv);
+          }
+        }
+      });
+    }
+
+    function setupHMSControls(hmsActions) {
+      document.getElementById('toggleAudio').onclick = async () => {
+        try {
+          await hmsActions.setLocalAudioEnabled(isAudioMuted);
+          isAudioMuted = !isAudioMuted;
+          addDebugInfo(`Audio ${isAudioMuted ? 'muted' : 'unmuted'}`);
+        } catch (error) {
+          addDebugInfo(`Failed to toggle audio: ${error.message}`);
+        }
+      };
+
+      document.getElementById('toggleVideo').onclick = async () => {
+        try {
+          await hmsActions.setLocalVideoEnabled(isVideoMuted);
+          isVideoMuted = !isVideoMuted;
+          addDebugInfo(`Video ${isVideoMuted ? 'muted' : 'unmuted'}`);
+        } catch (error) {
+          addDebugInfo(`Failed to toggle video: ${error.message}`);
+        }
+      };
+
+      document.getElementById('leaveRoom').onclick = async () => {
+        try {
+          await hmsActions.leave();
+          document.getElementById('video-container').innerHTML = '';
+          document.getElementById('controls').style.display = 'none';
+          updateStatus('👋 Left the room', '#d1ecf1', '#0c5460');
+          addDebugInfo('✅ Left room successfully');
+        } catch (error) {
+          addDebugInfo(`Failed to leave room: ${error.message}`);
+        }
+      };
+    }
+
+    // Fallback WebRTC implementation (unchanged)
     async function initializeFallbackCall(roomId, role) {
       addDebugInfo('Using fallback WebRTC implementation');
       
@@ -332,13 +446,12 @@
       notice.className = 'fallback-notice';
       notice.innerHTML = `
         <strong>📹 Local Camera Mode</strong><br>
-        HMS SDK couldn't load, showing your local camera only.<br>
+        HMS SDK couldn't load properly, showing your local camera only.<br>
         Share this URL with others: <code>${window.location.href}</code>
       `;
       document.body.insertBefore(notice, container);
 
       try {
-        // Get user media
         currentStream = await navigator.mediaDevices.getUserMedia({ 
           video: true, 
           audio: true 
@@ -469,4 +582,4 @@
     document.addEventListener("DOMContentLoaded", initializeApp);
   </script>
 </body>
-</html>
+  </html>
