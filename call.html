@@ -1,34 +1,46 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Join Call</title>
-  <script src="https://unpkg.com/@100mslive/roomkit-web"></script>
+  <meta charset="UTF-8" />
+  <title>Raksha Bandhan Call</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script src="https://unpkg.com/@100mslive/hms-video@latest/dist/hms-video.min.js"></script>
 </head>
 <body>
-  <div id="app" style="height: 100vh;"></div>
-  <script>
-    async function joinCall() {
-      const roomId = new URLSearchParams(window.location.search).get("room");
-      const role = "sister"; // or "brother" — you can make this dynamic
+  <div id="video-container" style="height: 100vh; background-color: #000; color: white; display: flex; align-items: center; justify-content: center;">
+    Loading...
+  </div>
 
-      const res = await fetch("/.netlify/functions/generateToken", {
+  <script>
+    const roomId = new URLSearchParams(window.location.search).get("room");
+    const accessTokenEndpoint = "https://rakhi25.netlify.app/.netlify/functions/getToken"; // You'll create this
+
+    if (!roomId) {
+      document.getElementById("video-container").innerText = "❌ Room not found in URL";
+      throw new Error("No room ID");
+    }
+
+    async function joinRoom() {
+      const res = await fetch(accessTokenEndpoint, {
         method: "POST",
-        body: JSON.stringify({
-          room_id: roomId,
-          user_id: Math.random().toString(36).substring(2, 10),
-          role
-        })
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ room_id: roomId, user_id: "rakhi-user", role: "guest" })
       });
 
       const { token } = await res.json();
 
-      window.HMSRoomKit.mount("#app", {
-        token,
-        options: { debug: false }
-      });
+      if (!token) {
+        document.getElementById("video-container").innerText = "❌ Token generation failed";
+        return;
+      }
+
+      const hms = new HMSReactiveStore.HMSRoomProvider();
+      await hms.join({ authToken: token, userName: "Sibling" });
+
+      document.getElementById("video-container").innerText = "✅ Joined room (console only)";
     }
 
-    joinCall();
+    joinRoom();
   </script>
 </body>
 </html>
