@@ -2,39 +2,45 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Raksha Bandhan Call</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <script src="https://unpkg.com/@100mslive/hms-video@latest/dist/hms-video.min.js"></script>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      overflow: hidden;
+    }
+    iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+  </style>
 </head>
 <body>
-  <div id="video-container" style="height: 100vh; background-color: #000; color: white; display: flex; align-items: center; justify-content: center;">
-    Loading...
-  </div>
+  <iframe id="call-frame"
+    allow="camera; microphone; fullscreen; display-capture"
+  ></iframe>
 
   <script>
-    const roomId = new URLSearchParams(window.location.search).get("room");
-    const accessTokenEndpoint = "https://rakhi25.netlify.app/.netlify/functions/getToken"; // You'll create this
+    const urlParams = new URLSearchParams(window.location.search);
+    const roomId = urlParams.get("room");
 
     if (!roomId) {
-      document.getElementById("video-container").innerText = "❌ Room not found in URL";
-      throw new Error("No room ID");
+      alert("Room ID missing!");
+    } else {
+      // 👇 Replace with your actual subdomain
+      const subdomain = "rakhi-celebrate";
+      const role = "guest"; // or "host" if needed
+      const userName = "Sibling";
+
+      const iframeUrl = `https://${subdomain}.app.100ms.live/preview/${roomId}?role=${role}&user_name=${userName}`;
+      document.getElementById("call-frame").src = iframeUrl;
     }
-
-    async function joinRoom() {
-      const res = await fetch(accessTokenEndpoint, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ room_id: roomId, user_id: "rakhi-user", role: "guest" })
-      });
-
-      const { token } = await res.json();
-
-      if (!token) {
-        document.getElementById("video-container").innerText = "❌ Token generation failed";
-        return;
-      }
-
-      const hms = new HMSReactiveStore.HMSRoomProvider();
+  </script>
+</body>
+</html>      const hms = new HMSReactiveStore.HMSRoomProvider();
       await hms.join({ authToken: token, userName: "Sibling" });
 
       document.getElementById("video-container").innerText = "✅ Joined room (console only)";
