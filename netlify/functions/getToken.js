@@ -12,7 +12,7 @@ exports.handler = async function (event, context) {
       };
     }
 
-    // 🔐 Your 100ms credentials
+    // 100ms credentials
     const appAccessKey = "688ba7bbbd0dab5f9a013465";
     const appSecret = "e5LfPS3lwoZRq76gt5QVKh6FZOpRx6me1oti17HiulXtz-pEILp3ARb5XD3jze71YTo6TCkYVmndW7FYXhoJ68-9YKAJGWoAMdk_8itncFFYpuxYCh3ZvfJXXXCOkHIT2wx-CoYsLZtSzmNvIfHqeSSMNWxWsUv2hDQdzu2OXSw=";
 
@@ -35,6 +35,21 @@ exports.handler = async function (event, context) {
       auth_token: token
     });
 
+    return {
+      statusCode: 200,
+      body: JSON.stringify({ token: response.data.token })
+    };
+  } catch (error) {
+    console.error("❌ getToken error:", error.response?.data || error.message);
+    return {
+      statusCode: 500,
+      body: JSON.stringify({
+        error: "Token generation failed",
+        details: error.response?.data || error.message
+      })
+    };
+  }
+};
     return {
       statusCode: 200,
       body: JSON.stringify({ token: response.data.token })
