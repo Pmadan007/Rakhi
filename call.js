@@ -1,42 +1,32 @@
-// call.js
-const urlParams = new URLSearchParams(window.location.search);
-const token = urlParams.get("token");
-const userName = urlParams.get("name") || "Sibling";
+document.addEventListener("DOMContentLoaded", async () => {
+  const urlParams = new URLSearchParams(window.location.search);
+  const roomId = urlParams.get("room");
+  const role = urlParams.get("role") || "brother"; // default to brother
 
-const hms = new window.HMSReactiveStore.HMSReactiveStore();
-const hmsActions = hms.getActions();
-const hmsStore = hms.getStore();
-
-async function joinRoom() {
-  try {
-    await hmsActions.join({
-      userName,
-      authToken: token,
-      settings: {
-        isAudioMuted: false,
-        isVideoMuted: false,
-      },
-    });
-  } catch (err) {
-    console.error("Join failed:", err);
+  if (!roomId) {
+    alert("Room ID missing!");
+    return;
   }
-}
 
-hmsStore.subscribe(
-  (peers) => {
-    const container = document.getElementById("video-container");
-    container.innerHTML = ""; // Clear existing tiles
+  const userName = role === "sister" ? "Sister" : "Brother";
 
-    peers.forEach((peer) => {
-      const videoEl = document.createElement("video");
-      videoEl.autoplay = true;
-      videoEl.playsInline = true;
-
-      hmsActions.attachVideo(peer.videoTrack, videoEl);
-      container.appendChild(videoEl);
+  try {
+    const res = await fetch("/.netlify/functions/getToken", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ room_id: roomId, role, user_name: userName }),
     });
-  },
-  (state) => state.peers
-);
 
-joinRoom();
+    const data = await res.json();
+    if (!data.token) {
+      console.error("Token fetch failed", data);
+      alert("Unable to fetch token.");
+      return;
+    }
+
+    const iframe = document.getElementById("jitsi-frame");
+    iframe.src = `https://rakhi-celebrate.app.100ms.live/preview/${roomId}?auth_token=${data.token}&skip_preview=true`;
+  } catch (err) {
+    console.error("Error loading call:", err);
+  }
+});
