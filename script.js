@@ -27,14 +27,11 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   startBtn.addEventListener("click", () => {
-    window.location.href = `call.html?room=${roomId}`;
-  });
-});    if (roomId) {
+    if (roomId) {
       window.location.href = `call.html?room=${roomId}`;
     }
   });
-});  startBtn.addEventListener("click", () => {
-    if (roomId) {
+});    if (roomId) {
       window.location.href = `call.html?room=${roomId}`;
     }
   });
