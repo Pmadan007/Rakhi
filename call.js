@@ -1,21 +1,25 @@
 document.addEventListener("DOMContentLoaded", async () => {
-  console.log("[📦] DOM loaded");
+  console.log("[✅] DOM loaded");
 
   const urlParams = new URLSearchParams(window.location.search);
-  const roomId = urlParams.get("roomId");
-  const userType = urlParams.get("userType");
-  const userName = userType === "sister" ? "Sister" : "Brother";
+  const roomId = urlParams.get("room") || urlParams.get("roomId");
+  const userType = urlParams.get("userType") || "sister"; // default to sister if not provided
 
-  console.log(`[👥] Joining room: ${roomId} as ${userName.toLowerCase()}`);
+  if (!roomId || !userType) {
+    console.error("❌ Missing roomId or userType in URL");
+    return;
+  }
+
+  console.log(`[👥] Joining room: ${roomId} as ${userType}`);
 
   try {
-    const res = await fetch("/.netlify/functions/getToken", {
+    const response = await fetch("/.netlify/functions/getToken", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ roomId, userName })
+      body: JSON.stringify({ roomId, userType })
     });
 
-    const data = await res.json();
+    const data = await response.json();
     console.log("[🪙] Token response:", data);
 
     if (!data.token) {
@@ -23,15 +27,20 @@ document.addEventListener("DOMContentLoaded", async () => {
       return;
     }
 
-    console.log("[🔷] 100ms script loaded. Initializing HMS...");
-    window.HMS.init({
+    const hms = window.HMS;
+    if (!hms) {
+      console.error("❌ 100ms SDK not loaded");
+      return;
+    }
+
+    const hmsConfig = {
       authToken: data.token,
-      userName,
-      skipPreview: true,
-      container: document.getElementById("hms-video")
-    });
-    console.log("[✅] HMS.init() called successfully");
+      userName: userType === "sister" ? "Sister" : "Brother"
+    };
+
+    const join = await hms.prebuilt.join(hmsConfig);
+    console.log("[🎥] Joined room successfully");
   } catch (error) {
-    console.error("❌ Error during HMS init:", error);
+    console.error("❌ Error during token fetch or room join:", error);
   }
 });
